@@ -1,10 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fruit_app/models/UserEntity/user_entity.dart';
+class UserModel {
+  String name;
+  String email;
+  String phone;
+  String profile_image;
+  String uId;
 
-class UserModel extends UserEntity {
-  UserModel({required super.name, required super.email, required super.uId});
-  factory UserModel.fromFirebaseUser(User user) {
-    return UserModel(
-        name: user.displayName ?? '', email: user.email ?? '', uId: user.uid);
+  UserModel(
+      {required this.name,
+      required this.email,
+      required this.phone,
+      required this.uId,
+      required this.profile_image});
+
+  UserModel.fromJson(Map<String, dynamic> json)
+      : name = json['name'] ?? '',
+        email = json['email'] ?? '',
+        phone = json['phone'] ?? '',
+        profile_image = json['profile_image'] ?? '',
+        uId = json['uId'] ?? '';
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'profile_image': profile_image,
+      'uId': uId,
+    };
   }
 }

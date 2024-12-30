@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fruit_app/Service/shared_pref.dart';
+import 'package:fruit_app/layouts/fruitapp_layout.dart';
 import 'package:fruit_app/modules/Login/login_screen.dart';
 import 'package:fruit_app/modules/onBoarding/onBoarding_screen.dart';
+import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -47,12 +49,14 @@ class _SplashScreenState extends State<SplashScreen> {
   void executeSpalshScreen() {
     bool key = SharedPrefrencesSingleton.getBool(keyIsOnBoardingSeen);
     Future.delayed(const Duration(seconds: 3), () {
-      if (key) {
+      if (key && uId == null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
           (route) => false,
         );
+      } else if (key && uId != null) {
+        navigateTo(context, FruitappLayout());
       } else {
         Navigator.pushAndRemoveUntil(
           context,
