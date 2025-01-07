@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fruit_app/models/ProductsModel/products_model.dart';
+import 'package:fruit_app/modules/FruitItemDetail/fruit_item_detail.dart';
+import 'package:fruit_app/shared/constants.dart';
 
 void showToust({
   required String? message,
@@ -54,59 +57,103 @@ Future navigateToandKill(context, widget) {
   );
 }
 
-Widget buildFruitItem(String image) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 10),
-    child: Container(
-      height: 500,
-      color: Colors.grey[100],
-      child: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                  onPressed: () {}, icon: Icon(Icons.favorite_border_outlined))
-            ],
-          ),
-          Container(
-            width: 90,
-            height: 90,
-            child: Image(
-              image: AssetImage(image),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
+Widget buildDefaultButton({
+  required String text,
+  required VoidCallback onPressed,
+}) {
+  return Container(
+    height: 54,
+    width: double.infinity,
+    decoration: BoxDecoration(
+        color: primaryColor, borderRadius: BorderRadius.circular(16)),
+    child: TextButton(
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: TextStyle(color: Colors.white, fontSize: 16),
+      ),
+    ),
+  );
+}
+
+Widget buildFruitItem(context, product) {
+  return InkWell(
+    onTap: () {
+      navigateTo(
+          context,
+          FruitItemDetail(
+            image: product.image,
+            name: product.name,
+            price: product.price,
+          ));
+    },
+    child: Padding(
+      padding: const EdgeInsets.only(left: 10),
+      child: Container(
+        height: 500,
+        color: Colors.grey[100],
+        child: Column(
+          children: [
+            Row(
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    "فراولة",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "30جنية / الكيلو",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.yellow[700]),
-                  ),
-                ]),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.green[800],
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        )),
-                  ),
-                ),
+                IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.favorite_border_outlined))
               ],
             ),
-          ),
-        ],
+            Container(
+              width: 80,
+              height: 80,
+              child: Image(
+                image: NetworkImage(product.image),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
+              child: Row(
+                children: [
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name.toString(),
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              product.price.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.yellow[700]),
+                            ),
+                            Text(
+                              "جنية/كيلو",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.yellow[700]),
+                            ),
+                          ],
+                        ),
+                      ]),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.green[800],
+                      child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          )),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );

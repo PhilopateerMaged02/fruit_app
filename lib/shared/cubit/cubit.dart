@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/main.dart';
+import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/models/UserModel/user_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
 import 'package:fruit_app/modules/Home/home.dart';
@@ -18,6 +19,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   static FruitAppCubit get(context) => BlocProvider.of(context);
 
   UserModel? userModel;
+  ProductsModel? productsModel;
 
   int currentIndex = 0;
   List<Widget> Screens = [Home(), Products(), Cart(), MyAccount()];
@@ -28,6 +30,28 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   //   "MyAccount",
   // ];
   bool? x = true, y, w, z;
+  bool radio1 = false, radio2 = false, radio3 = false;
+  void changeRadio1() {
+    radio1 = true;
+    radio2 = false;
+    radio3 = false;
+    emit(FruitAppChangeRadioState());
+  }
+
+  void changeRadio2() {
+    radio1 = false;
+    radio2 = true;
+    radio3 = false;
+    emit(FruitAppChangeRadioState());
+  }
+
+  void changeRadio3() {
+    radio1 = false;
+    radio2 = false;
+    radio3 = true;
+    emit(FruitAppChangeRadioState());
+  }
+
   void changeIndex(int index) {
     currentIndex = index;
     if (currentIndex == 0) {
@@ -79,6 +103,39 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     }
   }
 
+  List<ProductsModel> productsList = [];
+
+  void getProductsData() async {
+    try {
+      emit(FruitAppGetProductsDataLoading());
+
+      final response = await supabase.from('products').select();
+      final List<dynamic> products = response as List<dynamic>;
+
+      if (products.isNotEmpty) {
+        productsList.clear();
+        for (final product in products) {
+          final productModel = ProductsModel(
+            id: product['id'],
+            name: product['name'],
+            price: product['price'],
+            image: product['image'],
+            quantity: product['quantity'],
+          );
+          productsList.add(productModel);
+        }
+        emit(FruitAppGetProductsDataSuccess());
+        print('Fetched ${productsList.length} products.');
+      } else {
+        emit(FruitAppGetProductsDataError());
+        print('No products found in the database.');
+      }
+    } catch (e) {
+      emit(FruitAppGetProductsDataError());
+      print('Error fetching products: $e');
+    }
+  }
+
   ////////////////////////////////////////////////////
   Future<void> sendOtp(String emailOrPhone) async {
     try {
@@ -116,8 +173,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       await supabase.auth.signOut();
       await supabase.removeAllChannels();
       final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      PaintingBinding.instance.imageCache.clear();
+      prefs.remove('uId');
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(

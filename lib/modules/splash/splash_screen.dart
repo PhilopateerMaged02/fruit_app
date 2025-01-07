@@ -49,15 +49,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void executeSpalshScreen() {
     bool key = SharedPrefrencesSingleton.getBool(keyIsOnBoardingSeen);
     Future.delayed(const Duration(seconds: 3), () {
-      if (key && uId == null) {
+      if (key != false && uId == null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
           (route) => false,
         );
-      } else if (key && uId != null) {
+      } else if (key != false && uId != null) {
         navigateTo(context, FruitappLayout());
-      } else {
+      } else if (key == false && uId == null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => OnboardingScreen()),

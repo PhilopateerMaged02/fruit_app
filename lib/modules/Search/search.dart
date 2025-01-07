@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fruit_app/modules/notifications/notifications.dart';
 import 'package:fruit_app/shared/components.dart';
 
 class Search extends StatelessWidget {
@@ -27,10 +28,16 @@ class Search extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-                CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.green[50],
-                  backgroundImage: AssetImage("assets/images/notification.png"),
+                InkWell(
+                  onTap: () {
+                    navigateTo(context, Notifications());
+                  },
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: Colors.green[50],
+                    backgroundImage:
+                        AssetImage("assets/images/notification.png"),
+                  ),
                 ),
               ],
             ),

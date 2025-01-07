@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/modules/MostSeller/most_seller.dart';
 import 'package:fruit_app/modules/Search/search.dart';
+import 'package:fruit_app/modules/notifications/notifications.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:fruit_app/modules/Login/cubit/cubit.dart';
@@ -44,7 +45,7 @@ class Home extends StatelessWidget {
   }
 
   Widget _buildProfileAndGreeting(BuildContext context, Object? state) {
-    if (state is FruitAppGetUserDataLoading) {
+    if (state is FruitAppGetProductsDataLoading) {
       return _buildShimmerRow();
     }
 
@@ -76,10 +77,15 @@ class Home extends StatelessWidget {
             ),
           ),
           Spacer(),
-          CircleAvatar(
-            radius: 15,
-            backgroundColor: Colors.green[50],
-            backgroundImage: AssetImage("assets/images/notification.png"),
+          InkWell(
+            onTap: () {
+              navigateTo(context, Notifications());
+            },
+            child: CircleAvatar(
+              radius: 15,
+              backgroundColor: Colors.green[50],
+              backgroundImage: AssetImage("assets/images/notification.png"),
+            ),
           ),
         ],
       ),
@@ -115,28 +121,55 @@ class Home extends StatelessWidget {
   Widget _buildSearchField(context) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: TextFormField(
+      child: InkWell(
         onTap: () {
           navigateTo(context, Search());
         },
-        controller: searchController,
-        decoration: InputDecoration(
-            hintText: 'ابحث عن.......',
-            hintStyle: TextStyle(
-              color: Colors.grey[400],
-              fontWeight: FontWeight.w600,
-            ),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white60, width: 1.0)),
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white60, width: 1.0)),
-            suffixIcon: IconButton(
-              icon: Image(image: AssetImage("assets/images/setting-4.jpg")),
-              onPressed: () {},
-            ),
-            prefixIcon: Icon(Icons.search, color: Colors.green[700]),
-            fillColor: Colors.white,
-            filled: true),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // Background color for the container
+                borderRadius:
+                    BorderRadius.circular(0), // Rounded corners (optional)
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.05), // Shadow color
+                    spreadRadius: 1, // Spread radius
+                    blurRadius: 5, // Blur radius
+                    offset: Offset(0, 3), // Offset in x and y direction
+                  ),
+                ],
+              ),
+              padding:
+                  EdgeInsets.all(8), // Optional padding inside the container
+              child: Row(
+                children: [
+                  Container(
+                    width: 20,
+                    height: 20,
+                    child: Image(
+                      image: AssetImage("assets/images/searchnormal.png"),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    "ابحث عن ...",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  Spacer(),
+                  Image(
+                    image: AssetImage("assets/images/setting-4.jpg"),
+                  ),
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -217,7 +250,11 @@ class Home extends StatelessWidget {
   }
 
   Widget _buildFruitGrid(BuildContext context, Object? state) {
-    if (state is FruitAppGetUserDataLoading) {
+    final productsList = FruitAppCubit.get(context).productsList;
+
+    if (state is FruitAppGetProductsDataLoading ||
+        productsList == null ||
+        productsList.isEmpty) {
       return Expanded(
         child: Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
@@ -240,20 +277,20 @@ class Home extends StatelessWidget {
     }
 
     return Expanded(
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 10,
-        children: [
-          buildFruitItem("assets/images/fruit1.png"),
-          buildFruitItem("assets/images/fruit2.png"),
-          buildFruitItem("assets/images/fruit3.png"),
-          buildFruitItem("assets/images/fruit4.png"),
-          buildFruitItem("assets/images/fruit5.png"),
-          buildFruitItem("assets/images/fruit2.png"),
-          buildFruitItem("assets/images/fruit3.png"),
-          buildFruitItem("assets/images/fruit4.png"),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.only(right: 10, top: 10),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: productsList.length,
+          itemBuilder: (context, index) {
+            final product = productsList[index];
+            return buildFruitItem(context, product);
+          },
+        ),
       ),
     );
   }

@@ -163,7 +163,7 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         Container(
                           height: 1,
-                          width: 160,
+                          width: 150,
                           color: Colors.grey,
                         ),
                         Spacer(),
@@ -175,7 +175,7 @@ class LoginScreen extends StatelessWidget {
                         Spacer(),
                         Container(
                           height: 1,
-                          width: 160,
+                          width: 150,
                           color: Colors.grey,
                         ),
                       ],

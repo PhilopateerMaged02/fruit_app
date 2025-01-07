@@ -2,6 +2,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fruit_app/Service/shared_pref.dart';
+import 'package:fruit_app/layouts/fruitapp_layout.dart';
 import 'package:fruit_app/models/onBoarding/onBoarding_model.dart';
 import 'package:fruit_app/modules/Login/login_screen.dart';
 import 'package:fruit_app/shared/constants.dart';
@@ -163,31 +164,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: primaryColor,
             ),
           ),
-        SizedBox(
-          height: 30,
-        ),
         if (model.isButton == true)
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              height: 50,
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () {
-                  SharedPrefrencesSingleton.setBool(keyIsOnBoardingSeen, true);
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                    (route) => false,
-                  );
-                },
-                child: Text(
-                  'ابدأ الان',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 50,
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    SharedPrefrencesSingleton.setBool(
+                        keyIsOnBoardingSeen, true);
+                    if (uId == null) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        (route) => false,
+                      );
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FruitappLayout()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  child: Text(
+                    'ابدأ الان',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
+                decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(16)),
               ),
-              decoration: BoxDecoration(
-                  color: primaryColor, borderRadius: BorderRadius.circular(16)),
             ),
           ),
       ],
