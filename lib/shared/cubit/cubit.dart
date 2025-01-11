@@ -186,4 +186,86 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       print('Error signing out: $error');
     }
   }
+
+////////////////////////////////////////////////////////////
+  Future<void> addToCart(String productId) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null) {
+      print('User not logged in');
+      return;
+    }
+
+    final supabase = Supabase.instance.client;
+
+    try {
+      // Check if the product is already in the cart
+      final response = await supabase
+          .from('cart')
+          .select()
+          .eq('user_id', userId)
+          .eq('product_id', productId)
+          .maybeSingle();
+
+      // Handle null safety for the response
+      if (response == null) {
+        print('Error fetching cart: Response is null');
+        return;
+      }
+
+      if (response['data'] != null) {
+        // Product is already in the cart, increment the quantity
+        final cartId = response['data']['id'];
+        final quantity = response['data']['quantity'] + 1;
+
+        final updateResponse = await supabase
+            .from('cart')
+            .update({'quantity': quantity}).eq('id', cartId);
+
+        if (updateResponse.error == null) {
+          print('Quantity updated successfully');
+        } else {
+          print('Error updating quantity: ${updateResponse.error?.message}');
+        }
+      } else {
+        // Product is not in the cart, insert a new row
+        final insertResponse = await supabase.from('cart').insert({
+          'user_id': userId,
+          'product_id': productId,
+          'quantity': 1,
+        });
+
+        if (insertResponse.error == null) {
+          print('Product added to cart');
+        } else {
+          print('Error adding to cart: ${insertResponse.error?.message}');
+        }
+      }
+    } catch (e) {
+      print('Unexpected error: $e');
+    }
+  }
+
+  Future<List<dynamic>> fetchCartItems() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+
+    final response = await Supabase.instance.client
+        .from('cart')
+        .select('*, products(*)') // Adjust based on your schema
+        .eq('user_id', userId);
+
+    if (response == null) {
+      return [];
+    }
+
+    return response as List<dynamic>;
+  }
+
+  Future<void> removeFromCart(String cartItemId) async {
+    await Supabase.instance.client.from('cart').delete().eq('id', cartItemId);
+  }
 }
