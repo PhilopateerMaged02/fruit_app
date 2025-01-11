@@ -246,7 +246,9 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     }
   }
 
-  Future<List<dynamic>> fetchCartItems() async {
+  List<dynamic> cartItems = []; // Define cartItems list in your widget state
+
+  Future<void> fetchCartItems() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
 
     if (userId == null) {
@@ -259,10 +261,12 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         .eq('user_id', userId);
 
     if (response == null) {
-      return [];
+      cartItems = []; // Set an empty list if the response is null
+      return;
     }
 
-    return response as List<dynamic>;
+    // Update the cartItems list with fetched data
+    cartItems = response as List<dynamic>;
   }
 
   Future<void> removeFromCart(String cartItemId) async {

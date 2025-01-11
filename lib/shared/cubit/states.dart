@@ -17,3 +17,21 @@ class FruitAppGetProductsDataLoading extends FruitAppStates {}
 class FruitAppGetProductsDataSuccess extends FruitAppStates {}
 
 class FruitAppGetProductsDataError extends FruitAppStates {}
+
+class FruitAppGetCartDataLoading extends FruitAppStates {}
+
+class FruitAppGetCartDataSuccess extends FruitAppStates {}
+
+class FruitAppGetCartDataError extends FruitAppStates {}
+
+class FruitAppAddToCartLoading extends FruitAppStates {}
+
+class FruitAppAddToCartSuccess extends FruitAppStates {}
+
+class FruitAppAddToCartError extends FruitAppStates {}
+
+class FruitAppRemovedToCartLoading extends FruitAppStates {}
+
+class FruitAppRemovedToCartSuccess extends FruitAppStates {}
+
+class FruitAppRemovedToCartError extends FruitAppStates {}
