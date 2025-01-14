@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/main.dart';
+import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/models/UserModel/user_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
@@ -188,88 +189,78 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   }
 
 ////////////////////////////////////////////////////////////
-  Future<void> addToCart(String productId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
 
-    if (userId == null) {
-      print('User not logged in');
-      return;
-    }
+  List<CartModel> cartItems = [];
 
-    final supabase = Supabase.instance.client;
-
+  void getCartItems() async {
     try {
-      // Check if the product is already in the cart
-      final response = await supabase
-          .from('cart')
-          .select()
-          .eq('user_id', userId)
-          .eq('product_id', productId)
-          .maybeSingle();
+      emit(FruitAppGetCartDataLoading());
 
-      // Handle null safety for the response
-      if (response == null) {
-        print('Error fetching cart: Response is null');
-        return;
-      }
+      final response =
+          await supabase.from('cart').select('*, products(*)').eq('uId', uId!);
+      final List<dynamic> cart = response as List<dynamic>;
 
-      if (response['data'] != null) {
-        // Product is already in the cart, increment the quantity
-        final cartId = response['data']['id'];
-        final quantity = response['data']['quantity'] + 1;
-
-        final updateResponse = await supabase
-            .from('cart')
-            .update({'quantity': quantity}).eq('id', cartId);
-
-        if (updateResponse.error == null) {
-          print('Quantity updated successfully');
-        } else {
-          print('Error updating quantity: ${updateResponse.error?.message}');
+      if (cart.isNotEmpty) {
+        productsList.clear();
+        for (final product in cart) {
+          final cartModel = CartModel(
+            id: product['id'],
+            name: product['name'],
+            image: product['image'],
+            quantity: product['quantity'],
+            product_id: product['product_id'],
+          );
+          cartItems.add(cartModel);
         }
+        emit(FruitAppGetCartDataSuccess());
+        print('Fetched ${cartItems.length} products.');
       } else {
-        // Product is not in the cart, insert a new row
-        final insertResponse = await supabase.from('cart').insert({
-          'user_id': userId,
-          'product_id': productId,
-          'quantity': 1,
-        });
-
-        if (insertResponse.error == null) {
-          print('Product added to cart');
-        } else {
-          print('Error adding to cart: ${insertResponse.error?.message}');
-        }
+        emit(FruitAppGetCartDataError());
+        print('No products found in the cart.');
       }
     } catch (e) {
-      print('Unexpected error: $e');
+      emit(FruitAppGetCartDataError());
+      print('Error fetching products: $e');
     }
-  }
-
-  List<dynamic> cartItems = []; // Define cartItems list in your widget state
-
-  Future<void> fetchCartItems() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-
-    if (userId == null) {
-      throw Exception('User not logged in');
-    }
-
-    final response = await Supabase.instance.client
-        .from('cart')
-        .select('*, products(*)') // Adjust based on your schema
-        .eq('user_id', userId);
-
-    if (response == null) {
-      cartItems = []; // Set an empty list if the response is null
-      return;
-    }
-
-    // Update the cartItems list with fetched data
-    cartItems = response as List<dynamic>;
   }
 
   Future<void> removeFromCart(String cartItemId) async {
     await Supabase.instance.client.from('cart').delete().eq('id', cartItemId);
+  }
+
+  void addtocart(int productId, int quantity, String name, String image) async {
+    emit(FruitAppAddToCartLoading());
+    try {
+      // Step 1: Insert into the cart table
+      await supabase.from('cart').insert({
+        "product_id": productId,
+        "uId": uId,
+        "quantity": quantity,
+        "name": name,
+        "image": image,
+      });
+
+      // Step 2: Retrieve the current quantity from the products table
+      final response = await supabase
+          .from('products')
+          .select('quantity')
+          .eq('id', productId)
+          .single();
+
+      if (response != null && response['quantity'] >= quantity) {
+        // Step 3: Decrement the quantity in the products table
+        await supabase.from('products').update({
+          "quantity": response['quantity'] - quantity,
+        }).eq('id', productId);
+
+        emit(FruitAppAddToCartSuccess());
+      } else {
+        emit(FruitAppAddToCartError());
+        print("Error: Insufficient quantity available.");
+      }
+    } catch (error) {
+      print("Error in adding to cart: $error");
+      emit(FruitAppAddToCartError());
+    }
   }
 }

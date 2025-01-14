@@ -1,20 +1,20 @@
-class ProductsModel {
+class CartModel {
   int id;
   String name;
-  String price;
   String image;
   int quantity;
-  ProductsModel({
+  int product_id;
+  CartModel({
     required this.id,
     required this.name,
-    required this.price,
     required this.image,
+    required this.product_id,
     required this.quantity,
   });
-  ProductsModel.fromJson(Map<String, dynamic> json)
+  CartModel.fromJson(Map<String, dynamic> json)
       : name = json['name'] ?? '',
-        id = json['id'] ?? '',
-        price = json['price'] ?? '',
+        id = json['id'] ?? 0,
+        product_id = json['product_id'] ?? 0,
         image = json['image'] ?? '',
         quantity = json['quantity'] ?? 0;
 
@@ -22,7 +22,7 @@ class ProductsModel {
     return {
       'name': name,
       'id': id,
-      'price': price,
+      'product_id': product_id,
       'image': image,
       'quantity': quantity,
     };

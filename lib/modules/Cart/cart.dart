@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fruit_app/models/CartModel/cart_model.dart';
+import 'package:fruit_app/models/ProductsModel/products_model.dart';
+import 'package:fruit_app/modules/Products/products.dart';
 import 'package:fruit_app/shared/components.dart';
+import 'package:fruit_app/shared/cubit/cubit.dart';
+import 'package:fruit_app/shared/cubit/states.dart';
 
 class Cart extends StatefulWidget {
   @override
@@ -16,66 +22,72 @@ class _CartState extends State<Cart> {
   int x = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        title: Text(
-          "السلة",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ),
-        centerTitle: true,
-        leading: InkWell(
-            onTap: () {},
-            child: Image(image: AssetImage("assets/images/backArrow.png"))),
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: Colors.green[50],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "لديك ",
-                    style: TextStyle(color: Colors.green[700]),
-                  ),
-                  Text("2", style: TextStyle(color: Colors.green[700])),
-                  Text(" منتجات في سلة التسوق",
-                      style: TextStyle(color: Colors.green[700])),
-                ],
-              ),
+    return BlocConsumer<FruitAppCubit, FruitAppStates>(
+      listener: (BuildContext context, FruitAppStates state) {},
+      builder: (BuildContext context, FruitAppStates state) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            scrolledUnderElevation: 0,
+            title: Text(
+              "السلة",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
+            centerTitle: true,
+            leading: InkWell(
+                onTap: () {},
+                child: Image(image: AssetImage("assets/images/backArrow.png"))),
           ),
-          SizedBox(
-            height: 20,
-          ),
-          Expanded(
-            child: ListView.separated(
-                itemBuilder: (context, index) => buildFruitCartItem(),
-                separatorBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Container(
-                        height: 1,
-                        color: Colors.grey[300],
-                        width: double.infinity,
+          body: Column(
+            children: [
+              Container(
+                color: Colors.green[50],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "لديك ",
+                        style: TextStyle(color: Colors.green[700]),
                       ),
-                    ),
-                itemCount: 10),
+                      Text("2", style: TextStyle(color: Colors.green[700])),
+                      Text(" منتجات في سلة التسوق",
+                          style: TextStyle(color: Colors.green[700])),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Expanded(
+                child: ListView.separated(
+                    itemBuilder: (context, index) => buildFruitCartItem(
+                        FruitAppCubit.get(context).cartItems[index]),
+                    separatorBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Container(
+                            height: 1,
+                            color: Colors.grey[300],
+                            width: double.infinity,
+                          ),
+                        ),
+                    itemCount: FruitAppCubit.get(context).cartItems.length),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: buildDefaultButton(
+                    text: "الدفع ${"120 جنية"}", onPressed: () {}),
+              )
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: buildDefaultButton(
-                text: "الدفع ${"120 جنية"}", onPressed: () {}),
-          )
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget buildFruitCartItem() {
+  Widget buildFruitCartItem(CartModel cartModel) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -87,7 +99,7 @@ class _CartState extends State<Cart> {
                 color: Colors.grey[200],
                 width: 80,
                 height: 80,
-                child: Image(image: AssetImage("assets/images/banana.png"))),
+                child: Image(image: NetworkImage(cartModel.image))),
             SizedBox(
               width: 10,
             ),
@@ -96,11 +108,11 @@ class _CartState extends State<Cart> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "بطيخ",
+                  cartModel.name,
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  "3 كم",
+                  cartModel.quantity.toString(),
                   style: TextStyle(
                       color: Colors.yellow[700], fontWeight: FontWeight.w600),
                 ),

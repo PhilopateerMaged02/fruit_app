@@ -16,7 +16,12 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FruitAppCubit, FruitAppStates>(
-      listener: (BuildContext context, state) {},
+      listener: (BuildContext context, state) {
+        if (state is FruitAppGetProductsDataLoading) {
+          _buildShimmerRow();
+          _buildFruitGrid(context, state);
+        }
+      },
       builder: (BuildContext context, Object? state) {
         return SafeArea(
           child: Column(

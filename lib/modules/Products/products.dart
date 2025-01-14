@@ -214,6 +214,7 @@ class _ProductsState extends State<Products> {
               image: product.image,
               name: product.name,
               price: product.price,
+              id: product.id,
             ));
       },
       child: Padding(

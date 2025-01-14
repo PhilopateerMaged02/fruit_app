@@ -25,14 +25,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  if (uId != "") {
-    final session = await Supabase.instance.client.auth.refreshSession();
-    if (session.session == null || session.session!.accessToken.isEmpty) {
-      print('Error refreshing session');
-    } else {
-      print('Session refreshed successfully!');
-    }
-  }
+
   Widget widget;
   print(uId);
   uId = SharedPrefrencesSingleton.getData(key: 'uId');
@@ -41,6 +34,14 @@ void main() async {
   // } else {
   //   widget = LoginScreen();
   // }
+  if (uId != null) {
+    final session = await Supabase.instance.client.auth.refreshSession();
+    if (session.session == null || session.session!.accessToken.isEmpty) {
+      print('Error refreshing session');
+    } else {
+      print('Session refreshed successfully!');
+    }
+  }
   widget = SplashScreen();
   print(uId);
   runApp(MyApp(
@@ -58,7 +59,8 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (BuildContext context) => FruitAppCubit()
         ..getUserData()
-        ..getProductsData(),
+        ..getProductsData()
+        ..getCartItems(),
       child: MaterialApp(
         theme: ThemeData(
             fontFamily: 'Cairo',
