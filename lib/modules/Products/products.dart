@@ -9,6 +9,7 @@ import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
+import 'package:shimmer/shimmer.dart'; // Import shimmer package
 
 class Products extends StatefulWidget {
   @override
@@ -16,7 +17,6 @@ class Products extends StatefulWidget {
 }
 
 class _ProductsState extends State<Products> {
-  // State management for the price range values
   RangeValues _currentRangeValues = RangeValues(20, 80);
   double _minPrice = 0;
   double _maxPrice = 100;
@@ -29,7 +29,13 @@ class _ProductsState extends State<Products> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FruitAppCubit, FruitAppStates>(
-      listener: (BuildContext context, FruitAppStates state) {},
+      listener: (BuildContext context, FruitAppStates state) {
+        if (state is FruitAppGetProductsDataLoading ||
+            FruitAppCubit.get(context).productsList == null ||
+            FruitAppCubit.get(context).productsList.isEmpty) {
+          Center(child: Text('No products available.'));
+        }
+      },
       builder: (BuildContext context, FruitAppStates state) {
         return Scaffold(
           appBar: AppBar(
@@ -144,8 +150,16 @@ class _ProductsState extends State<Products> {
                 height: 100,
                 child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) => buildSmallFruitItem(
-                        FruitAppCubit.get(context).productsList[index]),
+                    itemBuilder: (context, index) {
+                      // If data is loading, show shimmer
+                      if (state is FruitAppGetProductsDataLoading ||
+                          FruitAppCubit.get(context).productsList == null ||
+                          FruitAppCubit.get(context).productsList.isEmpty) {
+                        return buildShimmerSmallFruitItem();
+                      }
+                      return buildSmallFruitItem(
+                          FruitAppCubit.get(context).productsList[index]);
+                    },
                     separatorBuilder: (context, index) => Container(
                           width: 15,
                         ),
@@ -183,16 +197,20 @@ class _ProductsState extends State<Products> {
                     child: GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // Two items per row
+                        crossAxisCount: 2,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 10,
                       ),
-                      itemCount: 4, // Number of products
+                      itemCount: 4,
                       itemBuilder: (context, index) {
-                        final product = FruitAppCubit.get(context).productsList[
-                            index]; // Get the product at the current index
-                        return buildFruitItem(
-                            context, product); // Pass product to the widget
+                        if (state is FruitAppGetProductsDataLoading ||
+                            FruitAppCubit.get(context).productsList == null ||
+                            FruitAppCubit.get(context).productsList.isEmpty) {
+                          return buildShimmerFruitItem();
+                        }
+                        final product =
+                            FruitAppCubit.get(context).productsList[index];
+                        return buildFruitItem(context, product);
                       },
                     ),
                   ),
@@ -236,6 +254,52 @@ class _ProductsState extends State<Products> {
     );
   }
 
+  Widget buildShimmerSmallFruitItem() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.grey[400],
+            ),
+            SizedBox(height: 8),
+            Container(
+              width: 60,
+              height: 10,
+              color: Colors.grey[300],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildShimmerFruitItem() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: [
+          Container(
+            width: 150,
+            height: 150,
+            color: Colors.grey[300],
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: 100,
+            height: 10,
+            color: Colors.grey[300],
+          ),
+        ],
+      ),
+    );
+  }
+
   void showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -257,7 +321,6 @@ class _ProductsState extends State<Products> {
                 color: Colors.black,
               ),
               Row(
-                //crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
@@ -283,6 +346,121 @@ class _ProductsState extends State<Products> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void buildBottomSheetAtoZPrice(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(5),
+        ),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Adjusts to content height
+                children: [
+                  Container(
+                    width: 60,
+                    height: 2,
+                    color: Colors.black,
+                  ),
+                  Row(
+                    //crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        "ترتيب حسب :",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Radio(
+                              value: FruitAppCubit.get(context).radio1,
+                              groupValue: true,
+                              onChanged: (bool? value) {
+                                setState(() {});
+                                FruitAppCubit.get(context).changeRadio1();
+                              }),
+                          Text(
+                            "السعر ( الأقل الي الأعلي )",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Radio(
+                              value: FruitAppCubit.get(context).radio2,
+                              groupValue: true,
+                              onChanged: (bool? value) {
+                                setState(() {});
+                                FruitAppCubit.get(context).changeRadio2();
+                              }),
+                          Text(
+                            "السعر ( الأعلي الي الأقل )",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Radio(
+                              value: FruitAppCubit.get(context).radio3,
+                              groupValue: true,
+                              onChanged: (bool? value) {
+                                setState(() {});
+                                FruitAppCubit.get(context).changeRadio3();
+                              }),
+                          Text(
+                            "الأبجديه",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    height: 54,
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        'تصفيه',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -437,121 +615,6 @@ class _ProductsState extends State<Products> {
                     ),
                   ],
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void buildBottomSheetAtoZPrice(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(5),
-        ),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, setState) {
-            return Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // Adjusts to content height
-                children: [
-                  Container(
-                    width: 60,
-                    height: 2,
-                    color: Colors.black,
-                  ),
-                  Row(
-                    //crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "ترتيب حسب :",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Radio(
-                              value: FruitAppCubit.get(context).radio1,
-                              groupValue: true,
-                              onChanged: (bool? value) {
-                                setState(() {});
-                                FruitAppCubit.get(context).changeRadio1();
-                              }),
-                          Text(
-                            "السعر ( الأقل الي الأعلي )",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Radio(
-                              value: FruitAppCubit.get(context).radio2,
-                              groupValue: true,
-                              onChanged: (bool? value) {
-                                setState(() {});
-                                FruitAppCubit.get(context).changeRadio2();
-                              }),
-                          Text(
-                            "السعر ( الأعلي الي الأقل )",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Radio(
-                              value: FruitAppCubit.get(context).radio3,
-                              groupValue: true,
-                              onChanged: (bool? value) {
-                                setState(() {});
-                                FruitAppCubit.get(context).changeRadio3();
-                              }),
-                          Text(
-                            "الأبجديه",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    height: 54,
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'تصفيه',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                ],
               ),
             );
           },

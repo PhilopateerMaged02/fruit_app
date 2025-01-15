@@ -17,9 +17,10 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<FruitAppCubit, FruitAppStates>(
       listener: (BuildContext context, state) {
-        if (state is FruitAppGetProductsDataLoading) {
-          _buildShimmerRow();
-          _buildFruitGrid(context, state);
+        if (state is FruitAppGetProductsDataLoading ||
+            FruitAppCubit.get(context).productsList == null ||
+            FruitAppCubit.get(context).productsList.isEmpty) {
+          Center(child: Text('No products available.'));
         }
       },
       builder: (BuildContext context, Object? state) {
@@ -73,7 +74,7 @@ class Home extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600),
                 ),
-                Text("${FruitAppCubit.get(context).userModel!.name}",
+                Text(FruitAppCubit.get(context).userModel?.name ?? 'Guest',
                     style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w700,

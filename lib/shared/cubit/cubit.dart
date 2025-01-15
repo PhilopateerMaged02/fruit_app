@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/main.dart';
@@ -70,6 +72,8 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       x = false;
       y = false;
       z = false;
+      getCartItems();
+      print(cartItems.length);
     } else if (currentIndex == 3) {
       z = true;
       x = false;
@@ -110,21 +114,26 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     try {
       emit(FruitAppGetProductsDataLoading());
 
+      // Fetch products from the Supabase table
       final response = await supabase.from('products').select();
+
+      // Cast the response to a List of dynamic maps
       final List<dynamic> products = response as List<dynamic>;
 
       if (products.isNotEmpty) {
-        productsList.clear();
+        //productsList.clear();
+
         for (final product in products) {
           final productModel = ProductsModel(
-            id: product['id'],
-            name: product['name'],
-            price: product['price'],
-            image: product['image'],
-            quantity: product['quantity'],
+            id: product['id'] ?? 0,
+            name: product['name'] ?? '',
+            price: _parsePrice(product['price']),
+            image: product['image'] ?? '',
+            quantity: product['quantity'] ?? 0,
           );
           productsList.add(productModel);
         }
+
         emit(FruitAppGetProductsDataSuccess());
         print('Fetched ${productsList.length} products.');
       } else {
@@ -134,6 +143,22 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     } catch (e) {
       emit(FruitAppGetProductsDataError());
       print('Error fetching products: $e');
+    }
+  }
+
+// Helper method to parse the price field
+  double _parsePrice(dynamic price) {
+    if (price == null) {
+      return 0.0; // Default to 0.0 if price is null
+    } else if (price is int) {
+      return price.toDouble(); // Convert int to double
+    } else if (price is double) {
+      return price; // Already a double
+    } else if (price is String) {
+      return double.tryParse(price) ?? 0.0; // Parse string to double
+    } else {
+      print('Unexpected price type: ${price.runtimeType}');
+      return 0.0; // Fallback to 0.0 for unexpected types
     }
   }
 
@@ -160,13 +185,6 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     } catch (error) {
       print('Error sending OTP: $error');
     }
-  }
-
-  void signOut(context) async {
-    await supabase.auth.signOut();
-    uId = null;
-    navigateToandKill(context, LoginScreen());
-    print(uId);
   }
 
   void signOutt(BuildContext context) async {
@@ -196,23 +214,32 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     try {
       emit(FruitAppGetCartDataLoading());
 
+      // Fetch cart items with related product data
       final response =
           await supabase.from('cart').select('*, products(*)').eq('uId', uId!);
       final List<dynamic> cart = response as List<dynamic>;
 
       if (cart.isNotEmpty) {
-        productsList.clear();
+        cartItems.clear();
+
         for (final product in cart) {
           final cartModel = CartModel(
-            id: product['id'],
-            name: product['name'],
-            image: product['image'],
-            quantity: product['quantity'],
-            product_id: product['product_id'],
+            id: product['id'] ?? 0,
+            name: product['name'] ?? '',
+            image: product['image'] ?? '',
+            price: _parsePrice(product['price']),
+            quantity: product['quantity'] ?? 0,
+            product_id: product['product_id'] ?? 0,
           );
           cartItems.add(cartModel);
         }
         emit(FruitAppGetCartDataSuccess());
+        finalPrice = 0.0;
+        cartItems.forEach((element) {
+          print("Quantity: ${element.quantity}");
+          print("Price: ${element.price}");
+          finalPrice += element.price * element.quantity;
+        });
         print('Fetched ${cartItems.length} products.');
       } else {
         emit(FruitAppGetCartDataError());
@@ -224,21 +251,32 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     }
   }
 
-  Future<void> removeFromCart(String cartItemId) async {
+  double finalPrice = 0.0;
+  Future<void> removeFromCart(
+      int cartItemId, int quantity, int productId) async {
+    final response = await supabase
+        .from('products')
+        .select('quantity')
+        .eq(
+          'id',
+          productId,
+        )
+        .maybeSingle();
+    await supabase.from('products').update({
+      "quantity": response?['quantity'] + quantity,
+    }).eq("id", productId);
     await Supabase.instance.client.from('cart').delete().eq('id', cartItemId);
+    if (cartItems.length == 1) {
+      cartItems.clear();
+    }
+    getCartItems();
   }
 
-  void addtocart(int productId, int quantity, String name, String image) async {
+  void addtocart(int productId, int quantity, String name, String image,
+      double price) async {
     emit(FruitAppAddToCartLoading());
     try {
       // Step 1: Insert into the cart table
-      await supabase.from('cart').insert({
-        "product_id": productId,
-        "uId": uId,
-        "quantity": quantity,
-        "name": name,
-        "image": image,
-      });
 
       // Step 2: Retrieve the current quantity from the products table
       final response = await supabase
@@ -247,13 +285,23 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
           .eq('id', productId)
           .single();
 
-      if (response != null && response['quantity'] >= quantity) {
+      if (response != null &&
+          response['quantity'] >= quantity &&
+          response['quantity'] > 0) {
         // Step 3: Decrement the quantity in the products table
         await supabase.from('products').update({
           "quantity": response['quantity'] - quantity,
         }).eq('id', productId);
-
+        await supabase.from('cart').insert({
+          "product_id": productId,
+          "uId": uId,
+          "quantity": quantity,
+          "name": name,
+          "image": image,
+          "price": price
+        });
         emit(FruitAppAddToCartSuccess());
+        getCartItems();
       } else {
         emit(FruitAppAddToCartError());
         print("Error: Insufficient quantity available.");
@@ -261,6 +309,99 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     } catch (error) {
       print("Error in adding to cart: $error");
       emit(FruitAppAddToCartError());
+    }
+  }
+
+  void increaseItemInCart(int productId, int quantity, String name,
+      String image, double price, int CartId) async {
+    emit(FruitAppAddToCartLoading());
+    try {
+      // Fetch the product from the products table
+      final response = await supabase
+          .from('products')
+          .select('quantity')
+          .eq('id', productId)
+          .maybeSingle(); // Use maybeSingle() to avoid errors when no rows are returned
+
+      if (response == null) {
+        emit(FruitAppAddToCartError());
+        print("Error: Product not found.");
+        return;
+      }
+
+      // Log the actual quantity from the database and requested quantity
+      print("Database Quantity: ${response['quantity']}");
+      print("Requested Quantity: $quantity");
+
+      // Ensure there is enough quantity in stock
+      if (response['quantity'] >= quantity &&
+          response['quantity'] > 0 &&
+          quantity > 0) {
+        // Update the product quantity
+        await supabase.from('products').update({
+          "quantity": response['quantity'] - 1,
+        }).eq('id', productId);
+
+        // Update the cart quantity
+        await supabase.from('cart').update({
+          "quantity": quantity + 1,
+        }).eq("id", CartId);
+
+        emit(FruitAppAddToCartSuccess());
+        getCartItems();
+      } else {
+        emit(FruitAppAddToCartError());
+        print("Error: Insufficient quantity available.");
+      }
+    } catch (error) {
+      print("Error in adding to cart: $error");
+      emit(FruitAppAddToCartError());
+    }
+  }
+
+  void decreaseItemInCart(int productId, int quantity, String name,
+      String image, double price, int CartId) async {
+    emit(FruitAppRemoveFromCartLoading());
+    try {
+      // Fetch the product from the products table
+      final response = await supabase
+          .from('products')
+          .select('quantity')
+          .eq('id', productId)
+          .maybeSingle();
+
+      if (response == null) {
+        emit(FruitAppRemoveFromCartError());
+        print("Error: Product not found.");
+        return;
+      }
+
+      print("Database Quantity: ${response['quantity']}");
+      print("Requested Quantity: $quantity");
+
+      if (quantity > 0) {
+        await supabase.from('products').update({
+          "quantity": response['quantity'] + 1,
+        }).eq('id', productId);
+
+        await supabase.from('cart').update({
+          "quantity": quantity - 1,
+        }).eq("id", CartId);
+        emit(FruitAppRemoveFromCartSuccess());
+        getCartItems();
+      } else if (quantity == 0) {
+        await supabase.from('cart').delete().eq("id", CartId);
+        cartItems.clear();
+        getCartItems();
+        emit(FruitAppRemoveFromCartSuccess());
+      } else {
+        emit(FruitAppRemoveFromCartError());
+        print("Error: Insufficient quantity available.");
+        getCartItems();
+      }
+    } catch (error) {
+      print("Error in adding to cart: $error");
+      emit(FruitAppRemoveFromCartError());
     }
   }
 }

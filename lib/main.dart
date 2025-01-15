@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => FruitAppCubit()
-        ..getUserData()
         ..getProductsData()
+        ..getUserData()
         ..getCartItems(),
       child: MaterialApp(
         theme: ThemeData(

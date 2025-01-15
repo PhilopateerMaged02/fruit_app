@@ -30,6 +30,12 @@ class FruitAppAddToCartSuccess extends FruitAppStates {}
 
 class FruitAppAddToCartError extends FruitAppStates {}
 
+class FruitAppRemoveFromCartLoading extends FruitAppStates {}
+
+class FruitAppRemoveFromCartSuccess extends FruitAppStates {}
+
+class FruitAppRemoveFromCartError extends FruitAppStates {}
+
 class FruitAppRemovedToCartLoading extends FruitAppStates {}
 
 class FruitAppRemovedToCartSuccess extends FruitAppStates {}

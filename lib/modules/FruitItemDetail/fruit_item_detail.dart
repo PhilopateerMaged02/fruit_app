@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
@@ -12,7 +14,7 @@ class FruitItemDetail extends StatefulWidget {
   final int id;
   final String image;
   final String name;
-  final String price;
+  final double price;
 
   const FruitItemDetail({
     required this.id,
@@ -102,7 +104,7 @@ class _FruitItemDetailState extends State<FruitItemDetail> {
                               Row(
                                 children: [
                                   Text(
-                                    widget.price,
+                                    '${widget.price}',
                                     style: TextStyle(
                                         color: Colors.yellow[700],
                                         fontSize: 16,
@@ -443,8 +445,8 @@ class _FruitItemDetailState extends State<FruitItemDetail> {
                         width: double.infinity,
                         child: TextButton(
                           onPressed: () {
-                            FruitAppCubit.get(context).addtocart(
-                                widget.id, x, widget.name, widget.image);
+                            FruitAppCubit.get(context).addtocart(widget.id, x,
+                                widget.name, widget.image, widget.price);
                           },
                           child: const Text(
                             'أضف الي السلة',
