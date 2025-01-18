@@ -71,7 +71,12 @@ class _ProductsState extends State<Products> {
                   children: [
                     InkWell(
                       onTap: () {
-                        navigateTo(context, Search());
+                        navigateTo(
+                            context,
+                            Search(
+                              productList:
+                                  FruitAppCubit.get(context).productsList,
+                            ));
                       },
                       child: Padding(
                           padding: const EdgeInsets.all(8.0),

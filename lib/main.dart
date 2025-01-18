@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
   final Widget startWidget;
   const MyApp({super.key, required this.startWidget});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
