@@ -41,3 +41,7 @@ class FruitAppRemovedToCartLoading extends FruitAppStates {}
 class FruitAppRemovedToCartSuccess extends FruitAppStates {}
 
 class FruitAppRemovedToCartError extends FruitAppStates {}
+
+class FruitAppChangeFruitItemState extends FruitAppStates {}
+
+class FruitAppChangeCartIconState extends FruitAppStates {}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/FruitItemDetail/fruit_item_detail.dart';
 import 'package:fruit_app/modules/MostSeller/most_seller.dart';
@@ -215,6 +216,7 @@ class _ProductsState extends State<Products> {
                         }
                         final product =
                             FruitAppCubit.get(context).productsList[index];
+                        final cart = FruitAppCubit.get(context).streamList;
                         return buildFruitItem(context, product);
                       },
                     ),

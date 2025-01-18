@@ -298,6 +298,7 @@ class Home extends StatelessWidget {
           itemCount: productsList.length,
           itemBuilder: (context, index) {
             final product = productsList[index];
+            final cart = FruitAppCubit.get(context).streamList;
             return buildFruitItem(context, product);
           },
         ),

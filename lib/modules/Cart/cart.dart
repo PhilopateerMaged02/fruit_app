@@ -42,73 +42,40 @@ class _CartState extends State<Cart> {
                 },
                 child: Image(image: AssetImage("assets/images/backArrow.png"))),
           ),
-          body: Column(
-            children: [
-              Container(
-                color: Colors.green[50],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "لديك ",
-                        style: TextStyle(color: Colors.green[700]),
-                      ),
-                      Text(
-                          FruitAppCubit.get(context)
-                              .cartItems
-                              .length
-                              .toString(),
-                          style: TextStyle(color: Colors.green[700])),
-                      Text(" منتجات في سلة التسوق",
-                          style: TextStyle(color: Colors.green[700])),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              if (FruitAppCubit.get(context).cartItems.length == 0 ||
-                  state is FruitAppGetCartDataError)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 200),
-                  child: Center(
-                    child: Text(
-                      "السلة فارغة",
-                      style: TextStyle(
-                          color: Colors.grey[300],
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              if (FruitAppCubit.get(context).cartItems.length != 0 ||
-                  state is FruitAppGetCartDataSuccess)
-                Expanded(
-                  child: ListView.separated(
-                      itemBuilder: (context, index) => buildFruitCartItem(
-                          FruitAppCubit.get(context).cartItems[index]),
-                      separatorBuilder: (context, index) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Container(
-                              height: 1,
-                              color: Colors.grey[300],
-                              width: double.infinity,
-                            ),
-                          ),
-                      itemCount: FruitAppCubit.get(context).cartItems.length),
-                ),
-              if (FruitAppCubit.get(context).cartItems.length > 0)
-                Padding(
+          body: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: FruitAppCubit.get(context).streamList,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text("No items found."));
+              }
+
+              final cartItems = snapshot.data!;
+              cartItems.removeWhere((item) => item['quantity'] <= 0);
+              return ListView.separated(
+                itemCount: cartItems.length,
+                separatorBuilder: (context, index) => Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: buildDefaultButton(
-                      text:
-                          "الدفع ${"${FruitAppCubit.get(context).finalPrice.toString()} جنية"}",
-                      onPressed: () {}),
+                  child: Container(
+                    height: 1,
+                    color: Colors.grey[300],
+                  ),
                 ),
-            ],
+                itemBuilder: (context, index) {
+                  final item = CartModel.fromJson(cartItems[index]);
+                  if (item.quantity == 0) {
+                    FruitAppCubit.get(context).removeFromCart(
+                        item.id, item.quantity, item.product_id);
+                  }
+
+                  return buildFruitCartItem(item);
+                },
+              );
+            },
           ),
         );
       },

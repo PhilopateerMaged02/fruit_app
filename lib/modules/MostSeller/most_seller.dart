@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
@@ -60,18 +61,16 @@ class MostSeller extends StatelessWidget {
                     child: GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // Two items per row
+                        crossAxisCount: 2,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 10,
                       ),
-                      itemCount: FruitAppCubit.get(context)
-                          .productsList
-                          .length, // Number of products
+                      itemCount: FruitAppCubit.get(context).productsList.length,
                       itemBuilder: (context, index) {
-                        final product = FruitAppCubit.get(context).productsList[
-                            index]; // Get the product at the current index
-                        return buildFruitItem(
-                            context, product); // Pass product to the widget
+                        final product =
+                            FruitAppCubit.get(context).productsList[index];
+                        final cart = FruitAppCubit.get(context).streamList;
+                        return buildFruitItem(context, product);
                       },
                     ),
                   ),

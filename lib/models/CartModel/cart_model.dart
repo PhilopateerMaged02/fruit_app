@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:fruit_app/shared/cubit/cubit.dart';
+
 class CartModel {
   int id;
   String name;
@@ -47,5 +49,12 @@ class CartModel {
       // Handle unexpected types
       throw FormatException('Invalid price type: ${price.runtimeType}');
     }
+  }
+
+  void changeFruitItemIcon(context) {
+    Map<int, bool> fruitItemIcon = {
+      for (var item in FruitAppCubit.get(context).cartItems)
+        item.product_id: false
+    };
   }
 }

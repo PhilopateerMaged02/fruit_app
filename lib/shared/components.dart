@@ -2,9 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
+import 'package:fruit_app/modules/Cart/cart.dart';
 import 'package:fruit_app/modules/FruitItemDetail/fruit_item_detail.dart';
 import 'package:fruit_app/shared/constants.dart';
+import 'package:fruit_app/shared/cubit/cubit.dart';
 
 void showToust({
   required String? message,
@@ -76,17 +79,18 @@ Widget buildDefaultButton({
   );
 }
 
-Widget buildFruitItem(context, product) {
+Widget buildFruitItem(BuildContext context, product) {
   return InkWell(
     onTap: () {
       navigateTo(
-          context,
-          FruitItemDetail(
-            image: product.image,
-            name: product.name,
-            price: product.price,
-            id: product.id,
-          ));
+        context,
+        FruitItemDetail(
+          image: product.image,
+          name: product.name,
+          price: product.price,
+          id: product.id,
+        ),
+      );
     },
     child: Padding(
       padding: const EdgeInsets.only(left: 10),
@@ -98,8 +102,9 @@ Widget buildFruitItem(context, product) {
             Row(
               children: [
                 IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.favorite_border_outlined))
+                  onPressed: () {},
+                  icon: Icon(Icons.favorite_border_outlined),
+                ),
               ],
             ),
             Container(
@@ -114,40 +119,67 @@ Widget buildFruitItem(context, product) {
               child: Row(
                 children: [
                   Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name.toString(),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              product.price.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.yellow[700]),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            product.price.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.yellow[700],
                             ),
-                            Text(
-                              "جنية/كيلو",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.yellow[700]),
+                          ),
+                          Text(
+                            "جنية/كيلو",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.yellow[700],
                             ),
-                          ],
-                        ),
-                      ]),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 1),
                     child: CircleAvatar(
                       backgroundColor: Colors.green[800],
                       child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          )),
+                        onPressed: () {
+                          if (FruitAppCubit.get(context)
+                              .cartItems
+                              .contains(product.id)) {
+                            navigateTo(context, Cart());
+                          } else if (product.quantity == 0) {
+                            showToust(
+                              message: "Out of Stock",
+                              state: ToastStates.ERROR,
+                            );
+                          } else {
+                            FruitAppCubit.get(context).addtocart(
+                              product.id,
+                              1,
+                              product.name,
+                              product.image,
+                              product.price,
+                            );
+                          }
+                        },
+                        icon: Icon(
+                          FruitAppCubit.get(context)
+                                  .cartItems
+                                  .contains(product.id)
+                              ? Icons.shopping_cart_checkout
+                              : Icons.add,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
