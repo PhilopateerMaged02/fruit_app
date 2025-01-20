@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/main.dart';
 import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
+import 'package:fruit_app/models/ReviewsModel/reviews_model.dart';
 import 'package:fruit_app/models/UserModel/user_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
 import 'package:fruit_app/modules/Home/home.dart';
@@ -24,6 +25,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   UserModel? userModel;
   ProductsModel? productsModel;
   CartModel? cartModel;
+  ReviewsModel? reviewsModel;
   bool fruitItemIsClicked = false;
   int currentIndex = 0;
   List<Widget> Screens = [Home(), Products(), Cart(), MyAccount()];
@@ -35,6 +37,11 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   // ];
   bool? x = true, y, w, z;
   bool radio1 = false, radio2 = false, radio3 = false;
+  bool star1 = false,
+      star2 = false,
+      star3 = false,
+      star4 = false,
+      star5 = false;
   void changeRadio1() {
     radio1 = true;
     radio2 = false;
@@ -362,7 +369,8 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         await supabase.from('cart').update({
           "quantity": quantity + 1,
         }).eq("id", CartId);
-
+        finalPrice += price;
+        print(finalPrice);
         //emit(FruitAppAddToCartSuccess());
         //getCartItems();
       } else {
@@ -403,12 +411,15 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         await supabase.from('cart').update({
           "quantity": quantity - 1,
         }).eq("id", CartId);
+        finalPrice -= price;
+        print(finalPrice);
         //emit(FruitAppRemoveFromCartSuccess());
         //getCartItems();
         print(cartItems.length);
       } else if (quantity <= 0) {
         await supabase.from('cart').delete().eq("id", CartId);
-
+        finalPrice -= price;
+        print(finalPrice);
         getCartItems();
         //emit(FruitAppRemoveFromCartSuccess());
       } else {
@@ -427,5 +438,74 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       fruitItemIsClicked = !fruitItemIsClicked;
     }
     emit(FruitAppChangeFruitItemState());
+  }
+
+  void createReview({
+    required String name,
+    required String image,
+    required String time,
+    required String comment,
+    required int rate,
+    required int product_id,
+  }) async {
+    emit(FruitAppCreateReviewLoading());
+    supabase.from('reviews').insert({
+      "uId": uId,
+      "name": name,
+      "image": image,
+      "product_id": product_id,
+      "rate": rate,
+      "comment": comment,
+      "time": time,
+    }).then((value) {
+      emit(FruitAppCreateReviewSuccess());
+    }).catchError((error) {
+      emit(FruitAppCreateReviewError());
+      print(error.toString());
+    });
+  }
+
+  List<ReviewsModel> reviewsList = [];
+
+  void getReviewsData({
+    required int product_id,
+  }) async {
+    try {
+      emit(FruitAppGetReviewsDataLoading());
+
+      reviewsList.clear();
+      final response =
+          await supabase.from('reviews').select().eq("product_id", product_id);
+
+      // Cast the response to a List of dynamic maps
+      final List<dynamic> reviews = response as List<dynamic>;
+
+      if (reviews.isNotEmpty) {
+        //productsList.clear();
+
+        for (final review in reviews) {
+          final reviewModel = ReviewsModel(
+            id: review['id'] ?? 0,
+            name: review['name'] ?? '',
+            image: review['image'] ?? '',
+            comment: review['comment'] ?? '',
+            product_id: review['product_id'] ?? 0,
+            rate: review['rate'] ?? 0,
+            time: review['time'] ?? '',
+            uId: review['uId'] ?? '',
+          );
+          reviewsList.add(reviewModel);
+        }
+
+        emit(FruitAppGetReviewsDataSuccess());
+        print('Fetched ${reviewsList.length} products.');
+      } else {
+        emit(FruitAppGetReviewsDataError());
+        print('No products found in the database.');
+      }
+    } catch (e) {
+      emit(FruitAppGetReviewsDataError());
+      print('Error fetching products: $e');
+    }
   }
 }

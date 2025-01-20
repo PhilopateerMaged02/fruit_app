@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
 import 'package:fruit_app/modules/Products/products.dart';
+import 'package:fruit_app/modules/reviews/reviews.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
@@ -153,6 +154,7 @@ class _FruitItemDetailState extends State<FruitItemDetail> {
                                   onPressed: () {
                                     setState(() {
                                       if (x > 0) x--;
+                                      //print(widget.id);
                                     });
                                   },
                                   icon: Icon(
@@ -187,7 +189,15 @@ class _FruitItemDetailState extends State<FruitItemDetail> {
                           ),
                           SizedBox(width: 10),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              navigateTo(
+                                  context,
+                                  Reviews(
+                                    product_id: widget.id,
+                                  ));
+                              FruitAppCubit.get(context)
+                                  .getReviewsData(product_id: widget.id);
+                            },
                             child: Text(
                               "المراجعة",
                               style: TextStyle(

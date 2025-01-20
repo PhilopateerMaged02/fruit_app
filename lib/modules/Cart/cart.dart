@@ -42,40 +42,51 @@ class _CartState extends State<Cart> {
                 },
                 child: Image(image: AssetImage("assets/images/backArrow.png"))),
           ),
-          body: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: FruitAppCubit.get(context).streamList,
-            builder: (BuildContext context,
-                AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
+          body: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder<List<Map<String, dynamic>>>(
+                  stream: FruitAppCubit.get(context).streamList,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text("No items found."));
-              }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text("لا توجد منتجات في السلة"));
+                    }
 
-              final cartItems = snapshot.data!;
-              cartItems.removeWhere((item) => item['quantity'] <= 0);
-              return ListView.separated(
-                itemCount: cartItems.length,
-                separatorBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 1,
-                    color: Colors.grey[300],
-                  ),
+                    final cartItems = snapshot.data!;
+                    cartItems.removeWhere((item) => item['quantity'] <= 0);
+                    return ListView.separated(
+                      itemCount: cartItems.length,
+                      separatorBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: 1,
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = CartModel.fromJson(cartItems[index]);
+                        if (item.quantity == 0) {
+                          FruitAppCubit.get(context).removeFromCart(
+                              item.id, item.quantity, item.product_id);
+                        }
+
+                        return buildFruitCartItem(item);
+                      },
+                    );
+                  },
                 ),
-                itemBuilder: (context, index) {
-                  final item = CartModel.fromJson(cartItems[index]);
-                  if (item.quantity == 0) {
-                    FruitAppCubit.get(context).removeFromCart(
-                        item.id, item.quantity, item.product_id);
-                  }
-
-                  return buildFruitCartItem(item);
-                },
-              );
-            },
+              ),
+              if (FruitAppCubit.get(context).cartItems.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: buildDefaultButton(text: "الدفع", onPressed: () {}),
+                ),
+            ],
           ),
         );
       },

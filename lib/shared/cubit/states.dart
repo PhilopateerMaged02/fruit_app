@@ -45,3 +45,17 @@ class FruitAppRemovedToCartError extends FruitAppStates {}
 class FruitAppChangeFruitItemState extends FruitAppStates {}
 
 class FruitAppChangeCartIconState extends FruitAppStates {}
+
+class FruitAppCalculatePriceState extends FruitAppStates {}
+
+class FruitAppCreateReviewLoading extends FruitAppStates {}
+
+class FruitAppCreateReviewSuccess extends FruitAppStates {}
+
+class FruitAppCreateReviewError extends FruitAppStates {}
+
+class FruitAppGetReviewsDataLoading extends FruitAppStates {}
+
+class FruitAppGetReviewsDataSuccess extends FruitAppStates {}
+
+class FruitAppGetReviewsDataError extends FruitAppStates {}
