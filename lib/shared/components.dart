@@ -79,6 +79,32 @@ Widget buildDefaultButton({
   );
 }
 
+Widget buildLoginTextField({
+  required TextEditingController controller,
+  required String text,
+}) {
+  return TextFormField(
+    controller: controller,
+    decoration: InputDecoration(
+      hintText: text,
+      hintStyle: TextStyle(
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade600,
+      ),
+      enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0XFFE6E9E9), width: 1)),
+      border: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color(0XFFE6E9E9),
+          width: .2,
+        ),
+      ),
+      fillColor: Color(0xFFF9FAFA),
+      filled: true,
+    ),
+  );
+}
+
 Widget buildFruitItem(BuildContext context, product) {
   return InkWell(
     onTap: () {

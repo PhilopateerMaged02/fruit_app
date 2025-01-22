@@ -12,6 +12,12 @@ class FruitAppGetUserDataError extends FruitAppStates {}
 
 class FruitAppChangeRadioState extends FruitAppStates {}
 
+class FruitAppChangeSwitchState extends FruitAppStates {}
+
+class FruitAppChangeCheckBoxState extends FruitAppStates {}
+
+class FruitAppChangePaymentMethodState extends FruitAppStates {}
+
 class FruitAppGetProductsDataLoading extends FruitAppStates {}
 
 class FruitAppGetProductsDataSuccess extends FruitAppStates {}

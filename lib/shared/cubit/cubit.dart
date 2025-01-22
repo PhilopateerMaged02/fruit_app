@@ -36,6 +36,17 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   //   "MyAccount",
   // ];
   bool? x = true, y, w, z;
+  bool? pay1 = false;
+  bool? pay2 = false;
+  // bool? address = false;
+  // bool? payment = false;
+  // bool? review = false;
+  bool? saveAddress = false;
+  bool? creditCard = false;
+  bool? visa = false;
+  bool? mastercard = false;
+  bool? paypal = false;
+  bool? applepay = false;
   bool radio1 = false, radio2 = false, radio3 = false;
   bool star1 = false,
       star2 = false,
@@ -62,6 +73,75 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     radio3 = true;
     emit(FruitAppChangeRadioState());
   }
+
+  void changeRadioPay1() {
+    pay1 = true;
+    pay2 = false;
+    emit(FruitAppChangeRadioState());
+  }
+
+  void changeRadioPay2() {
+    pay1 = false;
+    pay2 = true;
+    emit(FruitAppChangeRadioState());
+  }
+
+  void changeSaveAddress() {
+    saveAddress = !saveAddress!;
+    emit(FruitAppChangeSwitchState());
+  }
+
+  void changeCheckBox() {
+    creditCard = !creditCard!;
+    emit(FruitAppChangeCheckBoxState());
+  }
+
+  void changePaymentMethodToVisa() {
+    visa = true;
+    mastercard = false;
+    paypal = false;
+    applepay = false;
+    emit(FruitAppChangePaymentMethodState());
+  }
+
+  void changePaymentMethodToMastercard() {
+    visa = false;
+    mastercard = true;
+    paypal = false;
+    applepay = false;
+    emit(FruitAppChangePaymentMethodState());
+  }
+
+  void changePaymentMethodToPaypal() {
+    visa = false;
+    mastercard = false;
+    paypal = true;
+    applepay = false;
+    emit(FruitAppChangePaymentMethodState());
+  }
+
+  void changePaymentMethodToApplepay() {
+    visa = false;
+    mastercard = false;
+    paypal = false;
+    applepay = true;
+    emit(FruitAppChangePaymentMethodState());
+  }
+
+  // void changeRadioAddress() {
+  //   address = true;
+  //   emit(FruitAppChangeRadioState());
+  // }
+
+  // void changeRadioPayment() {
+  //   payment = true;
+  //   emit(FruitAppChangeRadioState());
+  // }
+
+  // void changeRadioReview() {
+  //   review = true;
+  //   emit(FruitAppChangeRadioState());
+  // }
 
   void changeIndex(int index) {
     currentIndex = index;

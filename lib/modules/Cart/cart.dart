@@ -5,6 +5,7 @@ import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/Home/home.dart';
 import 'package:fruit_app/modules/Products/products.dart';
+import 'package:fruit_app/modules/Shipping/shipping.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
@@ -84,7 +85,11 @@ class _CartState extends State<Cart> {
               if (FruitAppCubit.get(context).cartItems.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: buildDefaultButton(text: "الدفع", onPressed: () {}),
+                  child: buildDefaultButton(
+                      text: "الدفع",
+                      onPressed: () {
+                        navigateTo(context, Shipping());
+                      }),
                 ),
             ],
           ),
