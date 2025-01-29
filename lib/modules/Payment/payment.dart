@@ -145,11 +145,11 @@ class Payment extends StatelessWidget {
                           child: Container(
                             width: 70,
                             height: 50,
+                            color: Colors.cyan,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Image(
-                                  image:
-                                      AssetImage("assets/images/applepay.png")),
+                                  image: AssetImage("assets/images/Aman.png")),
                             ),
                           ),
                         ),
@@ -247,34 +247,34 @@ class Payment extends StatelessWidget {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: buildLoginTextField(
-                    controller: name, text: "اسم حامل البطاقه"),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: buildLoginTextField(
-                    controller: cardNumber, text: "رقم البطاقة"),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Container(
-                        width: 160,
-                        height: 100,
-                        child: buildLoginTextField(
-                            controller: expireDate, text: "تاريخ الصلاحيه")),
-                    Spacer(),
-                    Container(
-                        width: 160,
-                        height: 100,
-                        child:
-                            buildLoginTextField(controller: cvv, text: "cvv")),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(10.0),
+              //   child: buildLoginTextField(
+              //       controller: name, text: "اسم حامل البطاقه"),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.all(10.0),
+              //   child: buildLoginTextField(
+              //       controller: cardNumber, text: "رقم البطاقة"),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //           width: 160,
+              //           height: 100,
+              //           child: buildLoginTextField(
+              //               controller: expireDate, text: "تاريخ الصلاحيه")),
+              //       Spacer(),
+              //       Container(
+              //           width: 160,
+              //           height: 100,
+              //           child:
+              //               buildLoginTextField(controller: cvv, text: "cvv")),
+              //     ],
+              //   ),
+              // ),
               Row(
                 children: [
                   Checkbox(
@@ -296,7 +296,27 @@ class Payment extends StatelessWidget {
                 child: buildDefaultButton(
                     text: "تأكيد & استمرار",
                     onPressed: () {
-                      navigateTo(context, ReviewOrder());
+                      if (FruitAppCubit.get(context).visa == false &&
+                          FruitAppCubit.get(context).mastercard == false &&
+                          FruitAppCubit.get(context).paypal == false &&
+                          FruitAppCubit.get(context).applepay == false) {
+                        showToust(
+                            message: "من فضلك اختر طريقة دفع",
+                            state: ToastStates.ERROR);
+                      } else if (FruitAppCubit.get(context).visa == true ||
+                          FruitAppCubit.get(context).mastercard == true) {
+                        FruitAppCubit.get(context).getOrderRegisterationId(
+                            firstName:
+                                FruitAppCubit.get(context).userModel!.name,
+                            email: FruitAppCubit.get(context).userModel!.email,
+                            price: FruitAppCubit.get(context)
+                                .finalPrice
+                                .toString());
+                        navigateTo(context, ReviewOrder());
+                      } else {
+                        FruitAppCubit.get(context).getRefCode();
+                        navigateTo(context, ReviewOrder());
+                      }
                     }),
               ),
             ],

@@ -154,10 +154,28 @@ class Address extends StatelessWidget {
                   child: buildDefaultButton(
                       text: "التالي",
                       onPressed: () {
-                        if (FruitAppCubit.get(context).pay1 == true) {
-                          navigateTo(context, ReviewOrder());
+                        if (address.text.isEmpty ||
+                            city.text.isEmpty ||
+                            floorApart.text.isEmpty) {
+                          showToust(
+                              message: "من فضلك اكمل البيانات",
+                              state: ToastStates.ERROR);
                         } else {
-                          navigateTo(context, Payment());
+                          FruitAppCubit.get(context).address = address.text;
+                          FruitAppCubit.get(context).city = city.text;
+                          FruitAppCubit.get(context).floorApart =
+                              floorApart.text;
+                          if (FruitAppCubit.get(context).pay1 == true) {
+                            navigateTo(context, ReviewOrder());
+                            print(FruitAppCubit.get(context).address);
+                            print(FruitAppCubit.get(context).city);
+                            print(FruitAppCubit.get(context).floorApart);
+                          } else {
+                            print(FruitAppCubit.get(context).address);
+                            print(FruitAppCubit.get(context).city);
+                            print(FruitAppCubit.get(context).floorApart);
+                            navigateTo(context, Payment());
+                          }
                         }
                       }),
                 ),

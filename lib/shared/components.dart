@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fruit_app/models/CartModel/cart_model.dart';
@@ -48,6 +49,27 @@ Future navigateTo(context, widget) {
       MaterialPageRoute(
         builder: (context) => widget,
       ));
+}
+
+Future navigatoToWithAnimation(context, widget) {
+  return Navigator.of(context).push(
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => widget,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = 0.0;
+        var end = 1.0;
+        var curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var scaleAnimation = animation.drive(tween);
+        return ScaleTransition(
+          scale: scaleAnimation,
+          child: child,
+        );
+      },
+    ),
+  );
 }
 
 Future navigateToandKill(context, widget) {
@@ -108,7 +130,16 @@ Widget buildLoginTextField({
 Widget buildFruitItem(BuildContext context, product) {
   return InkWell(
     onTap: () {
-      navigateTo(
+      // navigateTo(
+      //   context,
+      //   FruitItemDetail(
+      //     image: product.image,
+      //     name: product.name,
+      //     price: product.price,
+      //     id: product.id,
+      //   ),
+      // );
+      navigatoToWithAnimation(
         context,
         FruitItemDetail(
           image: product.image,

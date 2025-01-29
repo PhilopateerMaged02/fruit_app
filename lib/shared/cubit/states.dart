@@ -65,3 +65,33 @@ class FruitAppGetReviewsDataLoading extends FruitAppStates {}
 class FruitAppGetReviewsDataSuccess extends FruitAppStates {}
 
 class FruitAppGetReviewsDataError extends FruitAppStates {}
+
+class FruitAppGetAuthTokenLoading extends FruitAppStates {}
+
+class FruitAppGetAuthTokenSuccess extends FruitAppStates {}
+
+class FruitAppGetAuthTokenError extends FruitAppStates {}
+
+class FruitAppGetOrderRegisterationIdLoading extends FruitAppStates {}
+
+class FruitAppGetOrderRegisterationIdSuccess extends FruitAppStates {}
+
+class FruitAppGetOrderRegisterationIdError extends FruitAppStates {}
+
+class FruitAppGetPaymentRequestLoading extends FruitAppStates {}
+
+class FruitAppGetPaymentRequestSuccess extends FruitAppStates {}
+
+class FruitAppGetPaymentRequestError extends FruitAppStates {}
+
+class FruitAppGetRefCodeLoading extends FruitAppStates {}
+
+class FruitAppGetRefCodeSuccess extends FruitAppStates {}
+
+class FruitAppGetRefCodeError extends FruitAppStates {}
+
+class FruitAppCreateOrderLoading extends FruitAppStates {}
+
+class FruitAppCreateOrderSuccess extends FruitAppStates {}
+
+class FruitAppCreateOrderError extends FruitAppStates {}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/layouts/fruitapp_layout.dart';
+import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
 
@@ -21,7 +22,7 @@ class TrackOrder extends StatelessWidget {
             leading: IconButton(
               icon: Image(image: AssetImage("assets/images/backArrow.png")),
               onPressed: () {
-                Navigator.pop(context);
+                navigateTo(context, FruitappLayout());
               },
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fruit_app/Service/DioHelper.dart';
 import 'package:fruit_app/Service/shared_pref.dart';
 import 'package:fruit_app/firebase_options.dart';
 import 'package:fruit_app/generated/l10n.dart';
@@ -20,6 +21,7 @@ void main() async {
     anonKey:
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3anpvdXJsd3dydG5rc25sYnJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM5MjM4NTQsImV4cCI6MjA0OTQ5OTg1NH0.r1tM7CRi1HTYHQGYAXEHEKEZN-ScmcaxzuW8FrH2Mkw",
   );
+  await Diohelper.initDio();
   Bloc.observer = MyBlocObserver();
   await SharedPrefrencesSingleton.init();
   await Firebase.initializeApp(
@@ -28,6 +30,8 @@ void main() async {
 
   Widget widget;
   print(uId);
+  ApiContest.visaUrl = "";
+  print(ApiContest.visaUrl);
   uId = SharedPrefrencesSingleton.getData(key: 'uId');
   // if (uId != null) {
   //   widget = FruitappLayout();
@@ -59,7 +63,8 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => FruitAppCubit()
         ..getProductsData()
         ..getUserData()
-        ..getCartItems(),
+        ..getCartItems()
+        ..getAuthToken(),
       child: MaterialApp(
         theme: ThemeData(
             fontFamily: 'Cairo',

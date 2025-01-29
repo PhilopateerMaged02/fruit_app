@@ -125,7 +125,7 @@ class Shipping extends StatelessWidget {
                         ),
                         Spacer(),
                         Text(
-                          "40 جنية",
+                          "${FruitAppCubit.get(context).finalPrice} جنية",
                           style: TextStyle(
                               color: Colors.green[900],
                               fontWeight: FontWeight.w700),
@@ -170,7 +170,7 @@ class Shipping extends StatelessWidget {
                         ),
                         Spacer(),
                         Text(
-                          "مجاني",
+                          "${FruitAppCubit.get(context).finalPrice} جنية",
                           style: TextStyle(
                               color: Colors.green[900],
                               fontWeight: FontWeight.w700),

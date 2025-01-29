@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fruit_app/Service/DioHelper.dart';
 import 'package:fruit_app/main.dart';
 import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
@@ -28,6 +29,10 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   ReviewsModel? reviewsModel;
   bool fruitItemIsClicked = false;
   int currentIndex = 0;
+  String refrenceCode = '';
+  String address = "";
+  String city = "";
+  String floorApart = "";
   List<Widget> Screens = [Home(), Products(), Cart(), MyAccount()];
   // List<String> Titles = [
   //   "Home",
@@ -304,7 +309,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         .stream(primaryKey: ['id'])
         .eq('uId', uId!)
         .map((data) {
-          print("Stream data updated: $data"); // Log the updated stream data
+          print("Stream data updated: $data");
           return data;
         });
   }
@@ -587,5 +592,128 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       emit(FruitAppGetReviewsDataError());
       print('Error fetching products: $e');
     }
+  }
+
+  Future<void> getAuthToken() async {
+    emit(FruitAppGetAuthTokenLoading());
+    Diohelper.postDataDio(url: ApiContest.getAuthToken, data: {
+      "api_key": ApiContest.paymentApiKey,
+    }).then((value) {
+      ApiContest.paymentFirstToken = value.data['token'];
+      print("the token is : " + ApiContest.paymentFirstToken);
+      emit(FruitAppGetAuthTokenSuccess());
+    }).catchError((error) {
+      print(error.toString());
+      emit(FruitAppGetAuthTokenError());
+    });
+  }
+
+  Future<void> getOrderRegisterationId({
+    required String firstName,
+    required String email,
+    required String price,
+  }) async {
+    emit(FruitAppGetOrderRegisterationIdLoading());
+    Diohelper.postDataDio(url: ApiContest.getOrderId, data: {
+      "auth_token": ApiContest.paymentFirstToken,
+      "amount_cents": price,
+    }).then((value) {
+      ApiContest.paymentOrderId = value.data['id'].toString();
+      print("the payment order id token is : " + ApiContest.paymentOrderId);
+      getPaymentRequest(firstName: firstName, email: email, price: price);
+      emit(FruitAppGetOrderRegisterationIdSuccess());
+    }).catchError((error) {
+      print(error.toString());
+      emit(FruitAppGetOrderRegisterationIdError());
+    });
+  }
+
+  Future<void> getPaymentRequest({
+    required String firstName,
+    required String email,
+    required String price,
+  }) async {
+    emit(FruitAppGetPaymentRequestLoading());
+    Diohelper.postDataDio(url: ApiContest.getPaymentId, data: {
+      "auth_token": ApiContest.paymentFirstToken,
+      "amount_cents": price,
+      "expiration": "3600",
+      "order_id": ApiContest.paymentOrderId,
+      "billing_data": {
+        "apartment": "NA",
+        "first_name": firstName,
+        "last_name": "NA",
+        "street": "NA",
+        "building": "NA",
+        "phone_number": "NA",
+        "city": "NA",
+        "country": "NA",
+        "email": email,
+        "floor": "NA",
+        "state": "NA"
+      },
+      "currency": "EGP",
+      "integration_id": ApiContest.integrationIdCard,
+      "lock_order_when_paid": "false"
+    }).then((value) {
+      ApiContest.finalToken = value.data['token'];
+      print("the final token is : " + ApiContest.finalToken);
+      ApiContest.visaUrl = "";
+      ApiContest.visaUrl =
+          "${ApiContest.baseUrl}/acceptance/iframes/896181?payment_token=${value.data['token']}";
+      print(ApiContest.visaUrl);
+      emit(FruitAppGetPaymentRequestSuccess());
+    }).catchError((error) {
+      print(error.toString());
+      emit(FruitAppGetPaymentRequestError());
+    });
+  }
+
+  Future<void> getRefCode() async {
+    emit(FruitAppGetRefCodeLoading());
+    Diohelper.postDataDio(url: ApiContest.getRefCode, data: {
+      "source": {"identifier": "AGGREGATOR", "subtype": "AGGREGATOR"},
+      "payment_token": ApiContest.finalToken
+    }).then((value) {
+      ApiContest.refCode = value.data['id'].toString();
+      refrenceCode = ApiContest.refCode;
+      print("the ref num is : " + ApiContest.refCode);
+      emit(FruitAppGetRefCodeSuccess());
+    }).catchError((error) {
+      print(error.toString());
+      emit(FruitAppGetRefCodeError());
+    });
+  }
+
+  void creatOrder({
+    required String name,
+    required String price,
+    required String email,
+    required String address,
+    required String city,
+    required String floorApart,
+    required int quantity,
+    required String payment_method,
+    required String status,
+    required String date,
+  }) async {
+    emit(FruitAppCreateOrderLoading());
+    await supabase.from('orders').insert({
+      "name": name,
+      "price": price,
+      "email": email,
+      "address": address,
+      "city": city,
+      "uId": uId,
+      "floorApart": floorApart,
+      "quantity": quantity,
+      "payment_method": payment_method,
+      "status": status,
+      "date": date,
+    }).then((value) {
+      emit(FruitAppCreateOrderSuccess());
+    }).catchError((error) {
+      emit(FruitAppCreateOrderError());
+    });
   }
 }
