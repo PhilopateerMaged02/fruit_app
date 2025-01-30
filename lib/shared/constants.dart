@@ -15,6 +15,8 @@ class ApiContest {
   static const String getOrderId = '/ecommerce/orders';
   static const String getPaymentId = '/acceptance/payment_keys';
   static const String getRefCode = '/acceptance/payments/pay';
+  static String transactionUrl =
+      "https://accept.paymob.com/api/acceptance/transactions?order_id=${ApiContest.paymentOrderId}";
   static String visaUrl = '';
   //https://accept.paymob.com/api/acceptance/iframes/896181?payment_token={payment_key_obtained_previously}
   static String paymentFirstToken = '';

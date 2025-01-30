@@ -33,6 +33,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   String address = "";
   String city = "";
   String floorApart = "";
+  bool isPaymentSuccess = false;
   List<Widget> Screens = [Home(), Products(), Cart(), MyAccount()];
   // List<String> Titles = [
   //   "Home",
@@ -312,6 +313,10 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
           print("Stream data updated: $data");
           return data;
         });
+  }
+
+  void removeCart() async {
+    await supabase.from('cart').delete().eq('uId', uId!);
   }
 
   void getCartItems() async {
@@ -683,6 +688,30 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       print(error.toString());
       emit(FruitAppGetRefCodeError());
     });
+  }
+
+  Future<void> getTransactionDetails() async {
+    emit(FruitAppGetTransactionDetailsLoading());
+    final response = await Diohelper.getDataDio(url: ApiContest.transactionUrl);
+
+    if (response.statusCode == 200) {
+      print(response.data['results']);
+      if (response.data['results'] != null &&
+          response.data['results'].isNotEmpty) {
+        var success = response.data['results'][0]['success'];
+        isPaymentSuccess = success;
+        if (success) {
+          print("Payment was approved!");
+          emit(FruitAppGetTransactionDetailsSuccess());
+        } else {
+          print("Payment was not approved.");
+          emit(FruitAppGetTransactionDetailsError());
+        }
+      } else {
+        print("No transaction data found.");
+        emit(FruitAppGetTransactionDetailsError());
+      }
+    }
   }
 
   void creatOrder({

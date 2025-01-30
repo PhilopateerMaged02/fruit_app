@@ -17,4 +17,20 @@ class Diohelper {
       {required String url, Map<String, dynamic>? data}) async {
     return await dio.post(url, data: data);
   }
+
+  static Future<Response> getDataDio({
+    required String url,
+    Map<String, dynamic>? query,
+  }) async {
+    return await dio.get(
+      url,
+      queryParameters: query,
+      options: Options(
+        headers: {
+          "Authorization":
+              "Bearer ${ApiContest.paymentFirstToken}", // ✅ Add Auth Token
+        },
+      ),
+    );
+  }
 }

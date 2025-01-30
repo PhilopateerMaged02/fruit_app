@@ -95,3 +95,9 @@ class FruitAppCreateOrderLoading extends FruitAppStates {}
 class FruitAppCreateOrderSuccess extends FruitAppStates {}
 
 class FruitAppCreateOrderError extends FruitAppStates {}
+
+class FruitAppGetTransactionDetailsLoading extends FruitAppStates {}
+
+class FruitAppGetTransactionDetailsSuccess extends FruitAppStates {}
+
+class FruitAppGetTransactionDetailsError extends FruitAppStates {}
