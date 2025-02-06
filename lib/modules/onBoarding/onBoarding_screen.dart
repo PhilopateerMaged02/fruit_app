@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fruit_app/Service/shared_pref.dart';
 import 'package:fruit_app/layouts/fruitapp_layout.dart';
 import 'package:fruit_app/models/onBoarding/onBoarding_model.dart';
-import 'package:fruit_app/modules/Login/login_screen.dart';
+import 'package:fruit_app/modules/AuthunticationWidgets/Login/login_screen.dart';
 import 'package:fruit_app/shared/constants.dart';
 
 List<OnboardingModel> list = [

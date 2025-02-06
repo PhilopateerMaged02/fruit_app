@@ -4,7 +4,7 @@ import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/FruitItemDetail/fruit_item_detail.dart';
 import 'package:fruit_app/modules/MostSeller/most_seller.dart';
-import 'package:fruit_app/modules/Search/search.dart';
+import 'package:fruit_app/modules/HomeWidgets/Search/search.dart';
 import 'package:fruit_app/modules/notifications/notifications.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
@@ -217,7 +217,7 @@ class _ProductsState extends State<Products> {
                         final product =
                             FruitAppCubit.get(context).productsList[index];
                         final cart = FruitAppCubit.get(context).streamList;
-                        return buildFruitItem(context, product);
+                        return buildFruitItem(context, product, () {});
                       },
                     ),
                   ),

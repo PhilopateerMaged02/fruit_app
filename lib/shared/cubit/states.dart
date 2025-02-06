@@ -101,3 +101,57 @@ class FruitAppGetTransactionDetailsLoading extends FruitAppStates {}
 class FruitAppGetTransactionDetailsSuccess extends FruitAppStates {}
 
 class FruitAppGetTransactionDetailsError extends FruitAppStates {}
+
+class FruitAppChangePasswordVisibilityState extends FruitAppStates {}
+
+class FruitAppChangeTextEditingState extends FruitAppStates {}
+
+class FruitAppUploadImageLoading extends FruitAppStates {}
+
+class FruitAppUploadImageSuccess extends FruitAppStates {}
+
+class FruitAppUploadImageError extends FruitAppStates {}
+
+class FruitAppUpdatePassLoading extends FruitAppStates {}
+
+class FruitAppUpdatePassSuccess extends FruitAppStates {}
+
+class FruitAppUpdatePassError extends FruitAppStates {}
+
+class FruitAppGetOrdersDataLoading extends FruitAppStates {}
+
+class FruitAppGetOrdersDataSuccess extends FruitAppStates {}
+
+class FruitAppGetOrdersDataError extends FruitAppStates {}
+
+class FruitAppAddPaymentMethodLoading extends FruitAppStates {}
+
+class FruitAppAddPaymentMethodSuccess extends FruitAppStates {}
+
+class FruitAppAddPaymentMethodError extends FruitAppStates {}
+
+class FruitAppGetPaymentCreditCardDataLoading extends FruitAppStates {}
+
+class FruitAppGetPaymentCreditCardDataSuccess extends FruitAppStates {}
+
+class FruitAppGetPaymentCreditCardDataError extends FruitAppStates {}
+
+class FruitAppAddToFavouritesLoading extends FruitAppStates {}
+
+class FruitAppAddToFavouritesSuccess extends FruitAppStates {}
+
+class FruitAppAddToFavouritesError extends FruitAppStates {}
+
+class FruitAppUpdateFavoritesState extends FruitAppStates {}
+
+class FruitAppRemoveToFavouritesLoading extends FruitAppStates {}
+
+class FruitAppRemoveToFavouritesSuccess extends FruitAppStates {}
+
+class FruitAppRemoveToFavouritesError extends FruitAppStates {}
+
+class FruitAppGetFavouritesDataLoading extends FruitAppStates {}
+
+class FruitAppGetFavouritesDataSuccess extends FruitAppStates {}
+
+class FruitAppGetFavouritesDataError extends FruitAppStates {}

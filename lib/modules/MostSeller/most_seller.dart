@@ -70,7 +70,7 @@ class MostSeller extends StatelessWidget {
                         final product =
                             FruitAppCubit.get(context).productsList[index];
                         final cart = FruitAppCubit.get(context).streamList;
-                        return buildFruitItem(context, product);
+                        return buildFruitItem(context, product, () {});
                       },
                     ),
                   ),

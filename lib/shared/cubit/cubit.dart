@@ -1,26 +1,33 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/Service/DioHelper.dart';
 import 'package:fruit_app/main.dart';
 import 'package:fruit_app/models/CartModel/cart_model.dart';
+import 'package:fruit_app/models/FavouritesModel/favourites_model.dart';
+import 'package:fruit_app/models/OrdersModel/orders_model.dart';
+import 'package:fruit_app/models/PaymentCreditCardModel/payment_credit_card_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/models/ReviewsModel/reviews_model.dart';
 import 'package:fruit_app/models/UserModel/user_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
-import 'package:fruit_app/modules/Home/home.dart';
-import 'package:fruit_app/modules/Login/login_screen.dart';
-import 'package:fruit_app/modules/MyAccount/myaccount.dart';
+import 'package:fruit_app/modules/HomeWidgets/Home/home.dart';
+import 'package:fruit_app/modules/AuthunticationWidgets/Login/login_screen.dart';
+import 'package:fruit_app/modules/MyAccountWidgets/MyAccount/myaccount.dart';
 import 'package:fruit_app/modules/Products/products.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FruitAppCubit extends Cubit<FruitAppStates> {
-  FruitAppCubit() : super(FruitAppInitialStates());
+  FruitAppCubit() : super(FruitAppInitialStates()) {
+    _loadFavorites();
+  }
   static FruitAppCubit get(context) => BlocProvider.of(context);
 
   UserModel? userModel;
@@ -33,7 +40,11 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   String address = "";
   String city = "";
   String floorApart = "";
+  File? profileImage;
+  ImagePicker picker = ImagePicker();
   bool isPaymentSuccess = false;
+  //bool isEnabled1 = false;
+  //bool isEnabled2 = false;
   List<Widget> Screens = [Home(), Products(), Cart(), MyAccount()];
   // List<String> Titles = [
   //   "Home",
@@ -134,6 +145,15 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     emit(FruitAppChangePaymentMethodState());
   }
 
+  // void changeTextEditing1() {
+  //   isEnabled1 = !isEnabled1;
+  //   emit(FruitAppChangeTextEditingState());
+  // }
+
+  // void changeTextEditing2() {
+  //   isEnabled2 = !isEnabled2;
+  //   emit(FruitAppChangeTextEditingState());
+  // }
   // void changeRadioAddress() {
   //   address = true;
   //   emit(FruitAppChangeRadioState());
@@ -175,6 +195,33 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
       w = false;
     }
     emit(FruitAppChangeBottomNavStates());
+  }
+
+  bool visibility1 = true;
+  bool visibility2 = true;
+  bool visibility3 = true;
+  IconData suffix1 = Icons.visibility_outlined;
+  IconData suffix2 = Icons.visibility_outlined;
+  IconData suffix3 = Icons.visibility_outlined;
+  void changeVisibility1() {
+    visibility1 = !visibility1;
+    suffix1 =
+        visibility1 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(FruitAppChangePasswordVisibilityState());
+  }
+
+  void changeVisibility2() {
+    visibility2 = !visibility2;
+    suffix2 =
+        visibility2 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(FruitAppChangePasswordVisibilityState());
+  }
+
+  void changeVisibility3() {
+    visibility3 = !visibility3;
+    suffix3 =
+        visibility3 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(FruitAppChangePasswordVisibilityState());
   }
 
   void getUserData() async {
@@ -744,5 +791,377 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     }).catchError((error) {
       emit(FruitAppCreateOrderError());
     });
+  }
+
+  Future<void> getProfileImage() async {
+    try {
+      final XFile? pickedFile =
+          await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        profileImage = File(pickedFile.path);
+        print('image selected');
+        uploadProfileImageFile();
+        // emit(SocialAppPickedProfileImageSuccessState());
+      } else {
+        print('No image selected');
+        // emit(SocialAppPickedProfileImageErrorState());
+        //return null;
+      }
+    } catch (e) {
+      print('Error selecting image: $e');
+      // emit(SocialAppPickedProfileImageErrorState());
+      //return null;
+    }
+  }
+
+  void uploadProfileImageFile() async {
+    try {
+      emit(FruitAppUploadImageLoading());
+      final avatarFile = File(profileImage!.path);
+      final String fileName = Uri.file(avatarFile.path).pathSegments.last;
+
+      final uploadResponse = await supabase.storage.from('fruithub_app').upload(
+            'users/profile_image/$fileName',
+            avatarFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+          );
+
+      final String profileImageUrl =
+          supabase.storage.from('fruithub_app').getPublicUrl(
+                'users/profile_image/$fileName',
+              );
+
+      print('Profile Image URL: $profileImageUrl');
+
+      final UserResponse res = await supabase.auth.updateUser(
+        UserAttributes(data: {
+          'profile_image': profileImageUrl,
+        }),
+      );
+      await supabase
+          .from('users')
+          .update({"profile_image": profileImageUrl}).eq('uId', uId!);
+      emit(FruitAppUploadImageSuccess());
+    } catch (error) {
+      print('Error uploading cover image: $error');
+      emit(FruitAppUploadImageError());
+    }
+  }
+
+  final user = supabase.auth.currentUser;
+  void updatePassword({
+    required String currentPass,
+    required String newPass,
+    required String repeatNewPass,
+  }) async {
+    try {
+      final user = supabase.auth.currentUser;
+
+      if (user == null) {
+        showToust(message: "يرجى تسجيل الدخول أولاً", state: ToastStates.ERROR);
+        return;
+      }
+
+      // Ensure passwords match before making any request
+      if (newPass != repeatNewPass) {
+        showToust(
+            message: "كلمتا المرور غير متطابقتين", state: ToastStates.ERROR);
+        return;
+      }
+
+      // Re-authenticate the user with current password
+      final res = await supabase.auth.signInWithPassword(
+        email: user.email!,
+        password: currentPass,
+      );
+
+      // Debugging
+      print("Re-authenticated User ID: ${res.user?.id}");
+
+      if (res.user == null) {
+        throw Exception("كلمة السر الحالية غير صحيحة");
+      }
+
+      // Update the password
+      await supabase.auth.updateUser(
+        UserAttributes(password: newPass),
+      );
+
+      showToust(
+          message: "تم تغيير كلمة المرور بنجاح", state: ToastStates.SUCCESS);
+    } catch (e) {
+      print("Error: $e");
+
+      // Handle specific authentication errors
+      if (e.toString().contains("invalid_credentials")) {
+        showToust(
+            message: "كلمة السر الحالية غير صحيحة", state: ToastStates.ERROR);
+      } else if (e.toString().contains("Auth session missing")) {
+        showToust(
+            message: "الجلسة منتهية، يرجى تسجيل الدخول مجدداً",
+            state: ToastStates.ERROR);
+      } else {
+        showToust(
+            message: "حدث خطأ أثناء تحديث كلمة المرور",
+            state: ToastStates.ERROR);
+      }
+    }
+  }
+
+  void updateName({required String newName}) async {
+    try {
+      await supabase.auth.updateUser(UserAttributes(data: {
+        "Display name": newName,
+      }));
+      await supabase.from('users').update({"name": newName}).eq('uId', uId!);
+      showToust(message: "تم تغيير الاسم بنجاح", state: ToastStates.SUCCESS);
+    } catch (error) {
+      print("error : " + error.toString());
+    }
+  }
+
+  void updateEmail({required String newEmail}) async {
+    try {
+      await supabase.auth.updateUser(UserAttributes(data: {
+        "email": newEmail,
+      }));
+      await supabase.from('users').update({"email": newEmail}).eq('uId', uId!);
+      showToust(
+          message: "تم تغيير البريد الالكتروني بنجاح",
+          state: ToastStates.SUCCESS);
+    } catch (error) {
+      print("error : " + error.toString());
+    }
+  }
+
+  void updateNameAndEmail(
+      {required String newName, required String newEmail}) async {
+    try {
+      await supabase.auth.updateUser(UserAttributes(data: {
+        "Display name": newName,
+        "email": newEmail,
+      }));
+      await supabase
+          .from('users')
+          .update({"name": newName, "email": newEmail}).eq('uId', uId!);
+      showToust(
+          message: "تم تغيير الاسم و البريد الالكتروني بنجاح",
+          state: ToastStates.SUCCESS);
+    } catch (error) {
+      print("error : " + error.toString());
+    }
+  }
+
+  List<OrdersModel> ordersList = [];
+  void getOrdersData() async {
+    try {
+      emit(FruitAppGetOrdersDataLoading());
+
+      ordersList.clear();
+      final response = await supabase.from('orders').select().eq("uId", uId!);
+
+      // Cast the response to a List of dynamic maps
+      final List<dynamic> orders = response as List<dynamic>;
+
+      if (orders.isNotEmpty) {
+        //productsList.clear();
+
+        for (final order in orders) {
+          final orderModel = OrdersModel(
+            id: order['id'] ?? 0,
+            name: order['name'] ?? '',
+            email: order['email'] ?? '',
+            address: order['address'] ?? '',
+            city: order['city'] ?? '',
+            date: order['date'] ?? '',
+            floorApart: order['floorApart'] ?? '',
+            payment_method: order['payment_method'] ?? '',
+            status: order['status'] ?? '',
+            quantity: order['quantity'] ?? 0,
+            price: order['price'] ?? '',
+          );
+          ordersList.add(orderModel);
+        }
+
+        emit(FruitAppGetOrdersDataSuccess());
+        print('Fetched ${ordersList.length} products.');
+      } else {
+        emit(FruitAppGetOrdersDataError());
+        print('No products found in the database.');
+      }
+    } catch (e) {
+      emit(FruitAppGetOrdersDataError());
+      print('Error fetching products: $e');
+    }
+  }
+
+  void addPaymentCard({
+    required String name,
+    required String card_no,
+    required String cvv,
+    required String expiry_date,
+  }) async {
+    emit(FruitAppAddPaymentMethodLoading());
+    await supabase.from("payment_cards").insert({
+      "uId": uId,
+      "name": name,
+      "card_no": card_no,
+      "cvv": cvv,
+      "expiry_date": expiry_date,
+    }).then((value) {
+      emit(FruitAppAddPaymentMethodSuccess());
+    }).catchError((error) {
+      emit(FruitAppAddPaymentMethodError());
+    });
+  }
+
+  List<PaymentCreditCardModel> paymentCreditCardList = [];
+
+  void getPaymentCreditCardData() async {
+    try {
+      emit(FruitAppGetPaymentCreditCardDataLoading());
+
+      paymentCreditCardList.clear();
+      final response =
+          await supabase.from('payment_cards').select().eq("uId", uId!);
+
+      final List<dynamic> paymentCreditCards = response as List<dynamic>;
+
+      if (paymentCreditCards.isNotEmpty) {
+        //productsList.clear();
+
+        for (final paymentCreditCard in paymentCreditCards) {
+          final paymentCreditCardModel = PaymentCreditCardModel(
+            id: paymentCreditCard['id'] ?? 0,
+            name: paymentCreditCard['name'] ?? '',
+            expiry_date: paymentCreditCard['expiray_date'] ?? '',
+            cvv: paymentCreditCard['cvv'] ?? '',
+            card_no: paymentCreditCard['card_no'] ?? '',
+          );
+          paymentCreditCardList.add(paymentCreditCardModel);
+        }
+
+        emit(FruitAppGetPaymentCreditCardDataSuccess());
+        print('Fetched ${paymentCreditCardList.length} products.');
+      } else {
+        emit(FruitAppGetPaymentCreditCardDataError());
+        print('No Cards found in the database.');
+      }
+    } catch (e) {
+      emit(FruitAppGetPaymentCreditCardDataError());
+      print('Error fetching products: $e');
+    }
+  }
+
+  void addToFav({required int product_id}) async {
+    emit(FruitAppAddToFavouritesLoading());
+    await supabase
+        .from('favourites')
+        .insert({"uId": uId, "product_id": product_id}).then((value) {
+      emit(FruitAppAddToFavouritesSuccess());
+    }).catchError((error) {
+      emit(FruitAppAddToFavouritesError());
+    });
+  }
+
+  void removeFromFav({required int product_id}) async {
+    emit(FruitAppRemoveToFavouritesLoading());
+    await supabase
+        .from('favourites')
+        .delete()
+        .eq("product_id", product_id)
+        .then((value) {
+      emit(FruitAppRemoveToFavouritesSuccess());
+    }).catchError((error) {
+      emit(FruitAppRemoveToFavouritesError());
+    });
+  }
+
+  Set<int> favItems = {};
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? favIds = prefs.getStringList('favItems');
+    if (favIds != null) {
+      favItems = favIds.map((id) => int.parse(id)).toSet();
+    }
+    emit(FruitAppUpdateFavoritesState());
+  }
+
+  // Save the favorites to SharedPreferences
+  Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> favIds = favItems.map((id) => id.toString()).toList();
+    await prefs.setStringList('favItems', favIds);
+  }
+
+  void toggleFavorite(int productId) {
+    if (favItems.contains(productId)) {
+      favItems.remove(productId);
+      removeFromFav(product_id: productId);
+    } else {
+      favItems.add(productId);
+      addToFav(product_id: productId);
+    }
+
+    // Save the updated favorites to SharedPreferences
+    _saveFavorites();
+
+    // Refresh the favorites data
+    getFavouritesData();
+
+    emit(FruitAppUpdateFavoritesState());
+  }
+
+  List<ProductsModel> favList = [];
+  void getFavouritesData() async {
+    try {
+      emit(FruitAppGetFavouritesDataLoading());
+
+      favList.clear();
+      final favResponse = await supabase
+          .from('favourites')
+          .select('product_id')
+          .eq('uId', uId!);
+
+      if (favResponse.isEmpty) {
+        print('No favorites found.');
+        emit(FruitAppGetFavouritesDataSuccess());
+        return;
+      }
+
+      print('Fetched favorites: $favResponse');
+      List<int> favProductIds =
+          (favResponse as List).map((fav) => fav['product_id'] as int).toList();
+
+      final productResponse = await supabase
+          .from('products')
+          .select('*')
+          .filter('id', 'in', favProductIds);
+
+      if (productResponse.isEmpty) {
+        print('No matching products found.');
+        emit(FruitAppGetFavouritesDataSuccess());
+        return;
+      }
+      print('Fetched products: $productResponse');
+      favList = (productResponse as List).map((product) {
+        return ProductsModel(
+          id: product['id'] ?? 0,
+          name: product['name'] ?? '',
+          price: (product['price'] is int)
+              ? (product['price'] as int).toDouble()
+              : (product['price'] ?? 0.0),
+          image: product['image'] ?? '',
+          quantity: (product['quantity'] as num).toInt(),
+        );
+      }).toList();
+
+      emit(FruitAppGetFavouritesDataSuccess());
+      print('Fetched ${favList.length} favorite products.');
+    } catch (e) {
+      emit(FruitAppGetFavouritesDataError());
+      print('Error fetching products: $e');
+    }
   }
 }

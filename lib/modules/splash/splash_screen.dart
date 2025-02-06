@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fruit_app/Service/shared_pref.dart';
 import 'package:fruit_app/layouts/fruitapp_layout.dart';
-import 'package:fruit_app/modules/Login/login_screen.dart';
+import 'package:fruit_app/modules/AuthunticationWidgets/Login/login_screen.dart';
 import 'package:fruit_app/modules/onBoarding/onBoarding_screen.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
           (route) => false,
         );
       } else if (key != false && uId != null) {
-        navigateTo(context, FruitappLayout());
+        navigateToandKill(context, FruitappLayout());
       } else if (key == false && uId == null) {
         Navigator.pushAndRemoveUntil(
           context,

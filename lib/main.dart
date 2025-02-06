@@ -7,9 +7,10 @@ import 'package:fruit_app/Service/shared_pref.dart';
 import 'package:fruit_app/firebase_options.dart';
 import 'package:fruit_app/generated/l10n.dart';
 import 'package:fruit_app/layouts/fruitapp_layout.dart';
-import 'package:fruit_app/modules/Login/login_screen.dart';
+import 'package:fruit_app/modules/AuthunticationWidgets/Login/login_screen.dart';
 import 'package:fruit_app/modules/splash/splash_screen.dart';
 import 'package:fruit_app/shared/bloc_observer.dart';
+import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -64,7 +65,10 @@ class MyApp extends StatelessWidget {
         ..getProductsData()
         ..getUserData()
         ..getCartItems()
-        ..getAuthToken(),
+        ..getAuthToken()
+        ..getOrdersData()
+        ..getPaymentCreditCardData()
+        ..getFavouritesData(),
       child: MaterialApp(
         theme: ThemeData(
             fontFamily: 'Cairo',

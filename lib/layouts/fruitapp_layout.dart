@@ -38,34 +38,51 @@ class FruitappLayout extends StatelessWidget {
                 },
                 items: [
                   BottomNavigationBarItem(
-                    icon: Image(
-                      image: (FruitAppCubit.get(context).x ?? false)
-                          ? AssetImage("assets/images/homeActive.png")
-                          : AssetImage("assets/images/homeInActive.png"),
+                    icon: Container(
+                      width: (FruitAppCubit.get(context).x ?? false) ? 70 : 20,
+                      height: (FruitAppCubit.get(context).x ?? false) ? 40 : 20,
+                      child: Image(
+                        image: (FruitAppCubit.get(context).x ?? false)
+                            ? AssetImage("assets/images/homeActive.png")
+                            : AssetImage("assets/images/homeInActive.png"),
+                      ),
                     ),
                     label: "Home",
                   ),
                   BottomNavigationBarItem(
-                    icon: Image(
-                      image: (FruitAppCubit.get(context).y ?? false)
-                          ? AssetImage("assets/images/categoriesActive.png")
-                          : AssetImage("assets/images/CategoriesInActive.png"),
+                    icon: Container(
+                      width: (FruitAppCubit.get(context).y ?? false) ? 70 : 20,
+                      height: (FruitAppCubit.get(context).y ?? false) ? 40 : 20,
+                      child: Image(
+                        image: (FruitAppCubit.get(context).y ?? false)
+                            ? AssetImage("assets/images/categoriesActive.png")
+                            : AssetImage(
+                                "assets/images/categoriesInActive.png"),
+                      ),
                     ),
                     label: "Categories",
                   ),
                   BottomNavigationBarItem(
-                    icon: Image(
-                      image: (FruitAppCubit.get(context).w ?? false)
-                          ? AssetImage("assets/images/cartActive.png")
-                          : AssetImage("assets/images/cartInActive.png"),
+                    icon: Container(
+                      width: (FruitAppCubit.get(context).w ?? false) ? 70 : 20,
+                      height: (FruitAppCubit.get(context).w ?? false) ? 40 : 20,
+                      child: Image(
+                        image: (FruitAppCubit.get(context).w ?? false)
+                            ? AssetImage("assets/images/cartActive.png")
+                            : AssetImage("assets/images/cartInActive.png"),
+                      ),
                     ),
                     label: "Cart",
                   ),
                   BottomNavigationBarItem(
-                    icon: Image(
-                      image: (FruitAppCubit.get(context).z ?? false)
-                          ? AssetImage("assets/images/myaccountActive.png")
-                          : AssetImage("assets/images/userInActive.png"),
+                    icon: Container(
+                      width: (FruitAppCubit.get(context).z ?? false) ? 70 : 20,
+                      height: (FruitAppCubit.get(context).z ?? false) ? 40 : 20,
+                      child: Image(
+                        image: (FruitAppCubit.get(context).z ?? false)
+                            ? AssetImage("assets/images/myaccountActive.png")
+                            : AssetImage("assets/images/userInActive.png"),
+                      ),
                     ),
                     label: "My Account",
                   ),
