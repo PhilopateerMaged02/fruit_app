@@ -32,14 +32,16 @@ class FruitAppLoginCubit extends Cubit<FruitAppLoginStates> {
         SharedPrefrencesSingleton.setString('uId', uId!);
         print(uId);
         print(res.user!.email);
-        navigateTo(context, FruitappLayout()); // Safely access the user ID.
+        navigateToandKill(
+            context, FruitappLayout()); // Safely access the user ID.
       } else {
         showToust(message: "Something Wrong", state: ToastStates.ERROR);
         emit(FruitAppLoginErrorState());
       }
     } catch (error) {
       showToust(
-          message: "Email or password is wrong", state: ToastStates.ERROR);
+          message: "البريد الالكتروني او كلمة السر خطا",
+          state: ToastStates.ERROR);
       emit(FruitAppLoginErrorState());
       print('Sign-in error: $error'); // Log the error for debugging.
     }
@@ -58,7 +60,7 @@ class FruitAppLoginCubit extends Cubit<FruitAppLoginStates> {
         print('User signed in: ${user.email}');
         print('User signed in: ${user.id}');
         print('User signed in: ${uId}');
-        navigateTo(context, FruitappLayout());
+        navigateToandKill(context, FruitappLayout());
       } else {
         print('Google sign-in failed or no user data found.');
       }
@@ -79,7 +81,7 @@ class FruitAppLoginCubit extends Cubit<FruitAppLoginStates> {
         print('User signed in: ${user.email}');
         print('User signed in: ${user.id}');
         print('User signed in: ${uId}');
-        navigateTo(context, FruitappLayout());
+        navigateToandKill(context, FruitappLayout());
       } else {
         print('facebook sign-in failed or no user data found.');
       }

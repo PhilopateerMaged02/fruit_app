@@ -63,7 +63,7 @@ class CreditCardPayment extends StatelessWidget {
                       address: FruitAppCubit.get(context).address,
                       city: FruitAppCubit.get(context).city,
                       floorApart: FruitAppCubit.get(context).floorApart,
-                      quantity: FruitAppCubit.get(context).cartItems.length,
+                      quantity: FruitAppCubit.get(context).cartItems.length + 1,
                       payment_method: FruitAppCubit.get(context).visa!
                           ? "visa"
                           : "masterCard",

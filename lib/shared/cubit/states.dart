@@ -155,3 +155,9 @@ class FruitAppGetFavouritesDataLoading extends FruitAppStates {}
 class FruitAppGetFavouritesDataSuccess extends FruitAppStates {}
 
 class FruitAppGetFavouritesDataError extends FruitAppStates {}
+
+class FruitAppChangePasswordLoading extends FruitAppStates {}
+
+class FruitAppChangePasswordSuccess extends FruitAppStates {}
+
+class FruitAppChangePasswordError extends FruitAppStates {}

@@ -13,7 +13,7 @@ import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';
 
 void showToust({
-  required String? message,
+  required String message,
   required ToastStates state,
 }) {
   Fluttertoast.showToast(
@@ -207,7 +207,8 @@ Widget buildFruitItem(BuildContext context, product, Function() functionOfFav) {
               width: 80,
               height: 80,
               child: Image(
-                image: NetworkImage(product.image),
+                image: NetworkImage(product.image) ??
+                    AssetImage("assets/images/fruitPlaceholder.jpg"),
               ),
             ),
             Padding(
@@ -254,7 +255,7 @@ Widget buildFruitItem(BuildContext context, product, Function() functionOfFav) {
                             navigateTo(context, Cart());
                           } else if (product.quantity == 0) {
                             showToust(
-                              message: "Out of Stock",
+                              message: "لا يوجد الكمية المطلوبة",
                               state: ToastStates.ERROR,
                             );
                           } else {
@@ -264,6 +265,10 @@ Widget buildFruitItem(BuildContext context, product, Function() functionOfFav) {
                               product.name,
                               product.image,
                               product.price,
+                            );
+                            showToust(
+                              message: "تمت الاضافة بنجاح",
+                              state: ToastStates.SUCCESS,
                             );
                           }
                         },

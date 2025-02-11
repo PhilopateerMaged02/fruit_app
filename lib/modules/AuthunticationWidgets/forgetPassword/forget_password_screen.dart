@@ -8,7 +8,6 @@ import 'package:fruit_app/shared/cubit/states.dart';
 
 class ForgetPasswordScreen extends StatelessWidget {
   var emailController = TextEditingController();
-  var phoneController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FruitAppCubit, FruitAppStates>(
@@ -49,7 +48,7 @@ class ForgetPasswordScreen extends StatelessWidget {
                   height: 31,
                 ),
                 TextFormField(
-                  controller: phoneController,
+                  controller: emailController,
                   decoration: InputDecoration(
                     hintText: 'البريد الالكتروني',
                     hintStyle: TextStyle(
@@ -83,6 +82,11 @@ class ForgetPasswordScreen extends StatelessWidget {
                       //     context,
                       //     MaterialPageRoute(
                       //         builder: (context) => VerificationScreen()));
+                      FruitAppCubit.get(context).sendPasswordResetEmail(
+                          context, emailController.text.trim());
+                      print(FruitAppCubit.get(context)
+                          .emailForForgetPass
+                          .toString());
                     },
                     child: const Text(
                       'نسيت كلمة المرور',

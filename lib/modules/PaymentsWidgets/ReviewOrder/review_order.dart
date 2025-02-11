@@ -478,7 +478,7 @@ class ReviewOrder extends StatelessWidget {
                             payment_method: pm,
                             price: orderPrice.toString(),
                             quantity:
-                                FruitAppCubit.get(context).cartItems.length,
+                                FruitAppCubit.get(context).cartItems.length + 1,
                             status: "في انتظار قبول الطلب",
                           );
                           if (state is FruitAppCreateOrderLoading) {

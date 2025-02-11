@@ -34,30 +34,48 @@ class MyFavourites extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 10, top: 10),
-                  child: SizedBox(
-                    height: MediaQuery.of(context)
-                        .size
-                        .height, // Set a specific height
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 10,
+                if (FruitAppCubit.get(context).favList.isEmpty)
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 300,
                       ),
-                      itemCount: FruitAppCubit.get(context).favList.length,
-                      itemBuilder: (context, index) {
-                        final product =
-                            FruitAppCubit.get(context).favList[index];
-                        return buildFruitItemInFav(context, product, () {
-                          FruitAppCubit.get(context).toggleFavorite(product.id);
-                        });
-                      },
+                      Center(
+                        child: Text(
+                          "لا توجد منتاجات مفضلة لديك",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[400]),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (FruitAppCubit.get(context).favList.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10, top: 10),
+                    child: SizedBox(
+                      height: MediaQuery.of(context)
+                          .size
+                          .height, // Set a specific height
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: FruitAppCubit.get(context).favList.length,
+                        itemBuilder: (context, index) {
+                          final product =
+                              FruitAppCubit.get(context).favList[index];
+                          return buildFruitItemInFav(context, product, () {
+                            FruitAppCubit.get(context)
+                                .toggleFavorite(product.id);
+                          });
+                        },
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           );

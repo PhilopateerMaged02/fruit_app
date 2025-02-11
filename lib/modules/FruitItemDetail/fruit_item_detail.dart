@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/Cart/cart.dart';
-import 'package:fruit_app/modules/Products/products.dart';
+import 'package:fruit_app/modules/ProductsWidgets/Products/products.dart';
 import 'package:fruit_app/modules/reviews/reviews.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
@@ -526,9 +526,9 @@ class _FruitItemDetailState extends State<FruitItemDetail> {
                                 ),
                               ),
                               Text(
-                                "حدث خطا",
+                                "لا يوجد كمية كافية",
                                 style: TextStyle(
-                                    color: Colors.grey[400],
+                                    color: Colors.grey[800],
                                     fontWeight: FontWeight.w600,
                                     fontSize: 18),
                               )

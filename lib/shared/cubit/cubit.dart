@@ -16,7 +16,7 @@ import 'package:fruit_app/modules/Cart/cart.dart';
 import 'package:fruit_app/modules/HomeWidgets/Home/home.dart';
 import 'package:fruit_app/modules/AuthunticationWidgets/Login/login_screen.dart';
 import 'package:fruit_app/modules/MyAccountWidgets/MyAccount/myaccount.dart';
-import 'package:fruit_app/modules/Products/products.dart';
+import 'package:fruit_app/modules/ProductsWidgets/Products/products.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
 import 'package:fruit_app/shared/cubit/states.dart';
@@ -41,6 +41,7 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   String city = "";
   String floorApart = "";
   File? profileImage;
+  String emailForForgetPass = "";
   ImagePicker picker = ImagePicker();
   bool isPaymentSuccess = false;
   //bool isEnabled1 = false;
@@ -200,9 +201,13 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
   bool visibility1 = true;
   bool visibility2 = true;
   bool visibility3 = true;
+  bool visibility4 = true;
+  bool visibility5 = true;
   IconData suffix1 = Icons.visibility_outlined;
   IconData suffix2 = Icons.visibility_outlined;
   IconData suffix3 = Icons.visibility_outlined;
+  IconData suffix4 = Icons.visibility_outlined;
+  IconData suffix5 = Icons.visibility_outlined;
   void changeVisibility1() {
     visibility1 = !visibility1;
     suffix1 =
@@ -221,6 +226,33 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     visibility3 = !visibility3;
     suffix3 =
         visibility3 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(FruitAppChangePasswordVisibilityState());
+  }
+
+  void changeVisibility4() {
+    visibility4 = !visibility4;
+    suffix4 =
+        visibility4 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(FruitAppChangePasswordVisibilityState());
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Change the visibility of the password field in the login screen
+  ///
+  /// This function toggles the visibility of the password field in the login
+  /// screen. When the visibility is set to true, the password field is visible
+  /// and the suffix of the text field is set to [Icons.visibility_outlined]. When
+  /// the visibility is set to false, the password field is obscured and the
+  /// suffix of the text field is set to [Icons.visibility_off_outlined].
+  ///
+  /// After changing the visibility, this function emits a
+  /// [FruitAppChangePasswordVisibilityState] event to notify the UI to update
+  /// the password field according to the new visibility state.
+/******  7eb39b3d-98de-4b1d-a981-d4a8d8fb5c43  *******/ void
+      changeVisibility5() {
+    visibility5 = !visibility5;
+    suffix5 =
+        visibility5 ? Icons.visibility_outlined : Icons.visibility_off_outlined;
     emit(FruitAppChangePasswordVisibilityState());
   }
 
@@ -332,8 +364,10 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     try {
       await supabase.auth.signOut();
       await supabase.removeAllChannels();
+      await supabase.from("favourites").delete().eq('uId', uId!);
       final prefs = await SharedPreferences.getInstance();
       prefs.remove('uId');
+      prefs.remove('favItems');
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -464,7 +498,11 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         getCartItems();
       } else {
         emit(FruitAppAddToCartError());
+        String error = "Error: Insufficient quantity available";
         print("Error: Insufficient quantity available.");
+        if (error.toString().contains("Insufficient quantity")) {
+          showToust(message: "لا يوجد كمية كافية", state: ToastStates.ERROR);
+        }
       }
     } catch (error) {
       print("Error in adding to cart: $error");
@@ -862,21 +900,18 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
         return;
       }
 
-      // Ensure passwords match before making any request
       if (newPass != repeatNewPass) {
         showToust(
             message: "كلمتا المرور غير متطابقتين", state: ToastStates.ERROR);
         return;
       }
 
-      // Re-authenticate the user with current password
       final res = await supabase.auth.signInWithPassword(
         email: user.email!,
         password: currentPass,
       );
 
-      // Debugging
-      print("Re-authenticated User ID: ${res.user?.id}");
+      print("Reauthenticated User ID: ${res.user?.id}");
 
       if (res.user == null) {
         throw Exception("كلمة السر الحالية غير صحيحة");
@@ -898,12 +933,57 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
             message: "كلمة السر الحالية غير صحيحة", state: ToastStates.ERROR);
       } else if (e.toString().contains("Auth session missing")) {
         showToust(
-            message: "الجلسة منتهية، يرجى تسجيل الدخول مجدداً",
-            state: ToastStates.ERROR);
+            message: "يرجى تسجيل الدخول مجدداً", state: ToastStates.ERROR);
       } else {
         showToust(
             message: "حدث خطأ أثناء تحديث كلمة المرور",
             state: ToastStates.ERROR);
+      }
+    }
+  }
+
+  void updatePasswordForForget({
+    required String newPass,
+    required String repeatNewPass,
+    context,
+  }) async {
+    emit(FruitAppChangePasswordLoading());
+    try {
+      // final user = supabase.auth.currentUser;
+
+      // if (user == null) {
+      //   showToust(message: "يرجى تسجيل الدخول أولاً", state: ToastStates.ERROR);
+      //   return;
+      // }
+      if (newPass != repeatNewPass) {
+        showToust(
+            message: "كلمتا المرور غير متطابقتين", state: ToastStates.ERROR);
+        emit(FruitAppChangePasswordError());
+        return;
+      }
+      await supabase.auth.updateUser(
+        UserAttributes(password: newPass),
+      );
+      showToust(
+          message: "تم تغيير كلمة المرور بنجاح", state: ToastStates.SUCCESS);
+      emit(FruitAppChangePasswordSuccess());
+      //navigateToandKill(context, LoginScreen());
+    } catch (e) {
+      print("Error: $e");
+      if (e.toString().contains("invalid_credentials")) {
+        showToust(
+            message: "كلمة السر الحالية غير صحيحة", state: ToastStates.ERROR);
+        emit(FruitAppChangePasswordError());
+      } else if (e.toString().contains("Auth session missing")) {
+        showToust(
+            message: "الجلسة منتهية، يرجى تسجيل الدخول مجدداً",
+            state: ToastStates.ERROR);
+        emit(FruitAppChangePasswordError());
+      } else {
+        showToust(
+            message: "حدث خطأ أثناء تحديث كلمة المرور",
+            state: ToastStates.ERROR);
+        emit(FruitAppChangePasswordError());
       }
     }
   }
@@ -1162,6 +1242,25 @@ class FruitAppCubit extends Cubit<FruitAppStates> {
     } catch (e) {
       emit(FruitAppGetFavouritesDataError());
       print('Error fetching products: $e');
+    }
+  }
+
+  Future<void> sendPasswordResetEmail(
+      BuildContext context, String email) async {
+    try {
+      await Supabase.instance.client.auth.resetPasswordForEmail(
+        email,
+        redirectTo: "myapp://password-reset",
+      );
+      emailForForgetPass = email;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent! Check your inbox.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+      print('Error: ${e.toString()}');
     }
   }
 }

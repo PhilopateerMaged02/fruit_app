@@ -4,7 +4,7 @@ import 'package:fruit_app/layouts/fruitapp_layout.dart';
 import 'package:fruit_app/models/CartModel/cart_model.dart';
 import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/HomeWidgets/Home/home.dart';
-import 'package:fruit_app/modules/Products/products.dart';
+import 'package:fruit_app/modules/ProductsWidgets/Products/products.dart';
 import 'package:fruit_app/modules/MyAccountWidgets/Shipping/shipping.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/cubit/cubit.dart';

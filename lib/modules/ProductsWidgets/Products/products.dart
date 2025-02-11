@@ -5,6 +5,7 @@ import 'package:fruit_app/models/ProductsModel/products_model.dart';
 import 'package:fruit_app/modules/FruitItemDetail/fruit_item_detail.dart';
 import 'package:fruit_app/modules/MostSeller/most_seller.dart';
 import 'package:fruit_app/modules/HomeWidgets/Search/search.dart';
+import 'package:fruit_app/modules/ProductsWidgets/Filters/filters.dart';
 import 'package:fruit_app/modules/notifications/notifications.dart';
 import 'package:fruit_app/shared/components.dart';
 import 'package:fruit_app/shared/constants.dart';
@@ -21,7 +22,10 @@ class _ProductsState extends State<Products> {
   RangeValues _currentRangeValues = RangeValues(20, 80);
   double _minPrice = 0;
   double _maxPrice = 100;
-
+  var minController = TextEditingController();
+  var maxController = TextEditingController();
+  double? minPrice;
+  double? maxPrice;
   @override
   void initState() {
     super.initState();
@@ -533,6 +537,8 @@ class _ProductsState extends State<Products> {
                           width: 120,
                           height: 40,
                           child: TextFormField(
+                            controller: minController,
+                            keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             initialValue: _minPrice.toString(),
                             onChanged: (value) {
@@ -561,6 +567,8 @@ class _ProductsState extends State<Products> {
                           width: 120,
                           height: 40,
                           child: TextFormField(
+                            controller: maxController,
+                            keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             initialValue: _maxPrice.toString(),
                             onChanged: (value) {
@@ -610,7 +618,20 @@ class _ProductsState extends State<Products> {
                       height: 54,
                       width: double.infinity,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          convertToDouble() {
+                            minPrice = double.tryParse(minController.text);
+                            maxPrice = double.tryParse(maxController.text);
+                          }
+
+                          navigateTo(
+                              context,
+                              Filters(
+                                  productList:
+                                      FruitAppCubit.get(context).productsList,
+                                  min: minPrice ?? 0,
+                                  max: maxPrice ?? 100));
+                        },
                         child: const Text(
                           'تصفيه',
                           style: TextStyle(color: Colors.white, fontSize: 16),
